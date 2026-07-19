@@ -2,7 +2,7 @@
 
 #親PC以外のhost名
 hosts=(
-    yamada-ubuntu2
+    #yamada-ubuntu2
 )
 
 # Gitリポジトリか確認
