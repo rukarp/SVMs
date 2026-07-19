@@ -32,7 +32,7 @@ echo "=== 他PCを更新 ==="
 
 for host in "${hosts[@]}"; do
     echo "[$host]"
-    ssh yamada-ryota@$host "cd ~/Documents/DSMO && git pull"
+    ssh yamada-ryota@$host "cd '$DIR' && git pull"
 done
 
 echo "完了"
