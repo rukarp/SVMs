@@ -79,13 +79,13 @@ def main():
     # --------------------------
     
     # --------- cancer ---------
-    X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
-    X_test, Y_test = ca.X_test, ca.Y_test
+    #X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
+    #X_test, Y_test = ca.X_test, ca.Y_test
     # --------------------------
     
     # ---------- adult ---------
-    X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
-    X_test, Y_test = ad.X_test, ad.Y_test
+    #X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
+    #X_test, Y_test = ad.X_test, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
