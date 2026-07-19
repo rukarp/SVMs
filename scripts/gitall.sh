@@ -2,7 +2,7 @@
 
 #親PC以外のhost名
 hosts=(
-    #yamada-ubuntu2
+    TABLET-N9QO2HSP
 )
 
 # Gitリポジトリか確認
