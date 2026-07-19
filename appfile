@@ -1,0 +1,4 @@
+-host yamada-ubuntu1
+-wdir /home/yamada-ryota/Documents/SVMs
+-np 3
+python3 MPI_test.py
