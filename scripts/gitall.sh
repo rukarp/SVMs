@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#親PC以外のhost名
+# 親PC以外のホスト名
 hosts=(
     yamada-ubuntu1
     yamada-ubuntu2
@@ -11,6 +11,9 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
     echo "Gitリポジトリではありません。"
     exit 1
 }
+
+# リポジトリのルートディレクトリ
+DIR=$(git rev-parse --show-toplevel)
 
 # コミットメッセージ
 if [ $# -eq 0 ]; then
@@ -33,7 +36,8 @@ echo "=== 他PCを更新 ==="
 
 for host in "${hosts[@]}"; do
     echo "[$host]"
-    ssh yamada-ryota@$host "cd '$DIR' && git pull"
+    ssh "yamada-ryota@$host" "cd '$DIR' && git pull" \
+        || echo "[$host] の更新に失敗しました。"
 done
 
 echo "完了"
