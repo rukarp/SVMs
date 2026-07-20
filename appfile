@@ -1,2 +1,2 @@
--host yamada-ubuntu1 -wdir /home/yamada-ryota/Documents/SVMs -np 3 python3 MPI_test.py
--host TABLET-N9QO2HSP -wdir /mnt/c/Users/yamada\ ryota/OneDrive\ -\ 岡山大学/ドキュメント/研究/研究進捗報告/2026_07_23\ Ubuntuの環境構築/SVMs -np 3 python3 MPI_test.py
+-host TABLET-N9QO2HSP -wdir "/mnt/c/Users/yamada\ ryota/OneDrive\ -\ 岡山大学/ドキュメント/研究/研究進捗報告/2026_07_23\ Ubuntuの環境構築/SVMs" -np 3 python3 MPI_test.py
+-host yamada-ubuntu1 -wdir "/home/yamada-ryota/Documents/SVMs" -np 3 python3 MPI_test.py
