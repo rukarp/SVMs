@@ -1,9 +1,15 @@
+rank=0, host=yamada-ubuntu1
+rank=1, host=yamada-ubuntu1
+rank=2, host=yamada-ubuntu1
+rank=3, host=yamada-ubuntu2
+rank=4, host=yamada-ubuntu2
+rank=5, host=yamada-ubuntu2
 ---------- Centralized Learning ----------
 low: 170 samples, up: 285 samples
 
     agent0 (455 datas) -> Successfully converged. Iterations: 138
 
-fitting time : 0.045610904693603516
+fitting time : 0.046781063079833984
 
 Accuracy: 99.12%
 F1: 99.30%
@@ -34,3 +40,19 @@ roop 1
     agent2 (106 datas) -> Successfully converged. Iterations: 67
     agent3 (121 datas) -> Successfully converged. Iterations: 55
 
+------------------------------------------------------------
+A daemon failed to report back after being spawned. This could
+be due to several factors, including inability to find the
+daemon executable, or the executable was unable to find its
+required supporting libraries. In some cases, the daemon was
+able to execute, but was unable to complete a TCP connection
+back to prterun:
+
+  Local host:    yamada-ubuntu1
+  Remote host:   yamada-ubuntu2
+  Daemon exit status: 255
+
+This may also be caused by a firewall on the remote host. Please
+check that any firewall (e.g., iptables) has been disabled and
+try again.
+------------------------------------------------------------
