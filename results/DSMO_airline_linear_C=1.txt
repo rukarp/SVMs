@@ -1,0 +1,268 @@
+rank=0, host=yamada-ubuntu1
+rank=1, host=yamada-ubuntu1
+rank=2, host=yamada-ubuntu1
+rank=3, host=yamada-ubuntu2
+rank=4, host=yamada-ubuntu2
+rank=5, host=yamada-ubuntu2
+---------- Centralized Learning ----------
+low: 5869 samples, up: 4490samples
+
+0 (10359, 23) (10359,)
+    agent0 (10359 datas) -> Successfully converged. Iterations: 20043
+
+fitting time : 40.57275629043579
+
+Accuracy: 87.49%
+F1: 85.35%
+[MIN, MAX]: [-4.662675864137, 3.119656320556]
+
+
+---------- Distributed Learning----------
+Agent 0 low: 1333 samples, up: 404 samples
+Agent 1 low: 1310 samples, up: 654 samples
+Agent 2 low: 1283 samples, up: 718 samples
+Agent 3 low: 764 samples, up: 743 samples
+Agent 4 low: 645 samples, up: 980 samples
+
+Agent 5 low: 534 samples, up: 991 samples
+20043 -> objective_value:-3391.427246932978, gap:-0.000972422515005622
+
+t_E = 4.344110
+(t_E_1) = (0.688315)
+(t_E_2) = (0.000000)
+(t_E_3) = (0.000000)
+(t_E_4) = (3.552401)
+t_K = 6.611280
+(t_K_1) = (0.000000)
+(t_K_2) = (0.281950)
+t_a = 1.858596
+
+fitting time : 13.062996864318848
+
+Agent 0
+SV_len: 27
+INNER_len: 3390
+Accuracy: 87.49%
+F1: 85.35%
+SA: 100.00%
+NRMSE: 0.000000000003
+NMAE: 0.000000000003
+[MIN, MAX]: [-4.662675864141, 3.119656320552]
+cos: 1.000000000000
+angle: 0.000000000000 deg (0.000000000000 rad)
+
+Agent 1
+SV_len: 27
+INNER_len: 3390
+Accuracy: 87.49%
+F1: 85.35%
+SA: 100.00%
+NRMSE: 0.000000000003
+NMAE: 0.000000000003
+[MIN, MAX]: [-4.662675864141, 3.119656320552]
+cos: 1.000000000000
+angle: 0.000000000000 deg (0.000000000000 rad)
+
+Agent 2
+SV_len: 27
+INNER_len: 3390
+Accuracy: 87.49%
+F1: 85.35%
+SA: 100.00%
+NRMSE: 0.000000000003
+NMAE: 0.000000000003
+[MIN, MAX]: [-4.662675864141, 3.119656320552]
+cos: 1.000000000000
+angle: 0.000000000000 deg (0.000000000000 rad)
+
+Agent 3
+SV_len: 27
+INNER_len: 3390
+Accuracy: 87.49%
+F1: 85.35%
+SA: 100.00%
+NRMSE: 0.000000000003
+NMAE: 0.000000000003
+[MIN, MAX]: [-4.662675864141, 3.119656320552]
+cos: 1.000000000000
+angle: 0.000000000000 deg (0.000000000000 rad)
+
+Agent 4
+SV_len: 27
+INNER_len: 3390
+Accuracy: 87.49%
+F1: 85.35%
+SA: 100.00%
+NRMSE: 0.000000000003
+NMAE: 0.000000000003
+[MIN, MAX]: [-4.662675864141, 3.119656320552]
+cos: 1.000000000000
+angle: 0.000000000000 deg (0.000000000000 rad)
+
+Agent 5
+SV_len: 27
+INNER_len: 3390
+Accuracy: 87.49%
+F1: 85.35%
+SA: 100.00%
+NRMSE: 0.000000000003
+NMAE: 0.000000000003
+[MIN, MAX]: [-4.662675864141, 3.119656320552]
+cos: 1.000000000000
+angle: 0.000000000000 deg (0.000000000000 rad)
+
+
+-------- Original Learning ----------
+0 (1737, 23) (1737,)
+1 (1964, 23) (1964,)
+2 (2001, 23) (2001,)
+3 (1507, 23) (1507,)
+5 (1525, 23) (1525,)
+4 (1625, 23) (1625,)
+    agent4 (1625 datas) -> Successfully converged. Iterations: 269
+    agent0 (1737 datas) -> Successfully converged. Iterations: 201
+    agent2 (2001 datas) -> Successfully converged. Iterations: 370
+    agent3 (1507 datas) -> Successfully converged. Iterations: 747
+    agent5 (1525 datas) -> Successfully converged. Iterations: 376
+    agent1 (1964 datas) -> Successfully converged. Iterations: 4283
+
+fitting time : 1.093279361725
+
+make_fake_data time: 0.24564766883850098
+
+---------- Centralized Learning(Pseudo-Data) ----------
+low: 5869 samples, up: 4490samples
+
+0 (10359, 23) (10359,)
+    agent0 (10359 datas) -> Successfully converged. Iterations: 20732
+
+fitting time : 41.28395867347717
+
+Accuracy: 87.41%
+F1: 85.25%
+SA: 99.15%
+NRMSE: 0.036143544319
+NMAE: 0.029190762781
+[MIN, MAX]: [-4.780190883175, 3.055333301601]
+cos: 0.995022684145
+angle: 5.718939874086 deg (0.099814330526 rad)
+
+
+---------- Original Learning(Pseudo-Data) ----------
+Agent 0 low: 1333 samples, up: 404samples
+Agent 1 low: 1310 samples, up: 654samples
+Agent 2 low: 1283 samples, up: 718samples
+Agent 3 low: 764 samples, up: 743samples
+Agent 4 low: 645 samples, up: 980samples
+
+Agent 5 low: 534 samples, up: 991samples
+0 (1737, 23) (1737,)
+5 (1525, 23) (1525,)
+4 (1625, 23) (1625,)
+3 (1507, 23) (1507,)
+1 (1964, 23) (1964,)
+2 (2001, 23) (2001,)
+    agent2 (2001 datas) -> Successfully converged. Iterations: 267
+    agent4 (1625 datas) -> Successfully converged. Iterations: 187
+    agent3 (1507 datas) -> Successfully converged. Iterations: 403
+    agent0 (1737 datas) -> Successfully converged. Iterations: 1200
+    agent5 (1525 datas) -> Successfully converged. Iterations: 310
+    agent1 (1964 datas) -> Successfully converged. Iterations: 8345
+
+fitting time : 1.3284633159637451
+
+
+---------- Distributed Learning(Pseudo-Data)----------
+Agent 0 low: 1333 samples, up: 404samples
+Agent 1 low: 1310 samples, up: 654samples
+Agent 2 low: 1283 samples, up: 718samples
+Agent 3 low: 764 samples, up: 743samples
+Agent 4 low: 645 samples, up: 980samples
+
+Agent 5 low: 534 samples, up: 991samples
+20732 -> objective_value:-3433.267360046773, gap:-0.0009832517378338679
+
+t_E = 5.095277
+(t_E_1) = (0.741039)
+(t_E_2) = (0.000000)
+(t_E_3) = (0.000000)
+(t_E_4) = (4.237525)
+t_K = 7.009022
+(t_K_1) = (0.000000)
+(t_K_2) = (0.387123)
+t_a = 3.055540
+
+fitting time : 15.43426775932312
+
+Agent 0
+SV_len: 26
+INNER_len: 3428
+Accuracy: 87.41%
+F1: 85.25%
+SA: 99.15%
+NRMSE: 0.036143544318
+NMAE: 0.029190762780
+[MIN, MAX]: [-4.780190883166, 3.055333301610]
+cos: 0.995022684145
+angle: 5.718939874086 deg (0.099814330526 rad)
+
+Agent 1
+SV_len: 26
+INNER_len: 3428
+Accuracy: 87.41%
+F1: 85.25%
+SA: 99.15%
+NRMSE: 0.036143544318
+NMAE: 0.029190762780
+[MIN, MAX]: [-4.780190883166, 3.055333301610]
+cos: 0.995022684145
+angle: 5.718939874086 deg (0.099814330526 rad)
+
+Agent 2
+SV_len: 26
+INNER_len: 3428
+Accuracy: 87.41%
+F1: 85.25%
+SA: 99.15%
+NRMSE: 0.036143544318
+NMAE: 0.029190762780
+[MIN, MAX]: [-4.780190883166, 3.055333301610]
+cos: 0.995022684145
+angle: 5.718939874086 deg (0.099814330526 rad)
+
+Agent 3
+SV_len: 26
+INNER_len: 3428
+Accuracy: 87.41%
+F1: 85.25%
+SA: 99.15%
+NRMSE: 0.036143544318
+NMAE: 0.029190762780
+[MIN, MAX]: [-4.780190883166, 3.055333301610]
+cos: 0.995022684145
+angle: 5.718939874086 deg (0.099814330526 rad)
+
+Agent 4
+SV_len: 26
+INNER_len: 3428
+Accuracy: 87.41%
+F1: 85.25%
+SA: 99.15%
+NRMSE: 0.036143544318
+NMAE: 0.029190762780
+[MIN, MAX]: [-4.780190883166, 3.055333301610]
+cos: 0.995022684145
+angle: 5.718939874086 deg (0.099814330526 rad)
+
+Agent 5
+SV_len: 26
+INNER_len: 3428
+Accuracy: 87.41%
+F1: 85.25%
+SA: 99.15%
+NRMSE: 0.036143544318
+NMAE: 0.029190762780
+[MIN, MAX]: [-4.780190883166, 3.055333301610]
+cos: 0.995022684145
+angle: 5.718939874086 deg (0.099814330526 rad)
+

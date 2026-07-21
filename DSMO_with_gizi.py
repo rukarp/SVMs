@@ -103,13 +103,13 @@ def main():
     # --------------------------
 
     # ---------- adult ---------
-    X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
-    X_test, Y_test = ad.X_test, ad.Y_test
+    #X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
+    #X_test, Y_test = ad.X_test, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
-    X_train, Y_train = ai.X6_5_train, ai.Y6_5_train
-    X_test, Y_test = ai.X_test, ai.Y_test
+    #X_train, Y_train = ai.X6_5_train, ai.Y6_5_train
+    #X_test, Y_test = ai.X_test, ai.Y_test
     # --------------------------
     
     # -------------------------
