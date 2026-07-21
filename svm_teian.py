@@ -236,7 +236,7 @@ def main():
     size = comm.Get_size()
     
     # ---------- iris ----------
-    X_train, Y_train = ir.X4_5_train, ir.Y4_5_train
+    X_train, Y_train = ir.X6_5_train, ir.Y6_5_train
     X_test, Y_test = ir.X_test, ir.Y_test
     # --------------------------
     
@@ -276,24 +276,25 @@ def main():
                   [1, 1, 1, 1, 1, 0]])
     L = 2"""
     
-    """A = np.array([[0, 1, 0, 0, 0, 0],
+    A = np.array([[0, 1, 0, 0, 0, 0],
                   [1, 0, 1, 0, 0, 0],
                   [0, 1, 0, 1, 0, 0],
                   [0, 0, 1, 0, 1, 0],
                   [0, 0, 0, 1, 0, 1],
                   [0, 0, 0, 0, 1, 0]])
-    L = 6"""
+    L = 6
     # -------------------------
 
     # --- カーネルを指定してインスタンスを生成 ---
-    mysvm = MySVM_T(kernel = 'linear', C = 10)
+    mysvm = MySVM_T(kernel = 'linear', C = 1000)
     #mysvm = MySVM_T(kernel = 'poly', degree = 2, coef0 = 1.0, C = 1)
     #mysvm = MySVM_T(kernel = 'rbf', gamma = 1, C = 1)
     #mysvm = MySVM_T(kernel = 'sigmoid', gamma = 1.0, coef0 = 1.0, C = 1.0)
     # -----------------------------------------
 
 
-
+    plt = True
+    #plt = False
 
     # --------------------------------------------------------
     
@@ -447,12 +448,13 @@ def main():
         # -------------------------------------------------------------------------
         
         # 目的関数の末尾の値の推移，データの個数の推移をプロット
-        mysvm.plt_Objective_Last_Values()
-        mysvm.plt_Num_Samples()
-        mysvm.plt_Num_Samples_Total()
+        mysvm.plt_Objective_Last_Values("plt_Objective_Last_Values")
+        mysvm.plt_Num_Samples("plt_Num_Samples")
+        mysvm.plt_Num_Samples_Total("plt_Num_Samples_Total")
     comm.Barrier()
     
-    mysvm.plt_Data_and_Boundary()
+    if plt == True:
+        mysvm.plt_Data_and_Boundary_D("plt_D")
 
     
     

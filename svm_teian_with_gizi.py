@@ -218,44 +218,6 @@ class MySVM_TG(MySVM_t, MySVM_g):
 
                         self.X[recv_ind] = recv_X
                         self.y[recv_ind] = recv_y
-                        
-            
-            
-           
-            
-    
-    
-    
-    
-    def plt_Data_and_Boundary_sim(self, x_range=(-0.05, 1.05), y_range=(-0.05, 1.05)):
-        
-        x_min, x_max = x_range
-        y_min, y_max = y_range
-
-        xx, yy = np.meshgrid(np.linspace(x_min, x_max, 500), np.linspace(y_min, y_max, 500))
-
-        # 判別関数の出力を取得
-        XY = np.vstack([xx.ravel(), yy.ravel()]).T
-        Z = np.array([self.f(xy) for xy in XY]).reshape(xx.shape)
-
-        # levelsを100段階の連続にする
-        levels = np.linspace(Z.min(), Z.max(), 100)
-
-        # フィールドをプロット
-        cf = plt.contourf(xx, yy, Z, levels=levels, cmap='coolwarm', alpha=0.6)
-        plt.contour(xx, yy, Z, levels=[0], colors='k', linestyles='-')      # 決定境界を黒線で
-        plt.contour(xx, yy, Z, levels=[-1, 1], colors='k', linestyles=':')  # f(x) = +-1を点線で
-        
-        # データプロット
-        plt.scatter(self.X[self.y == min(self.y), 0], self.X[self.y == min(self.y), 1], c='blue', edgecolor='k', s=20, label='label = -1')
-        plt.scatter(self.X[self.y == max(self.y), 0], self.X[self.y == max(self.y), 1], c='red', edgecolor='k', s=20, label='label = +1')
-        plt.scatter(self.X[self.ind_sv, 0], self.X[self.ind_sv, 1], s=100, facecolors='none', edgecolors='k', label='Support Vectors')
-        
-        plt.colorbar(cf)
-        plt.xlabel('X1')
-        plt.ylabel('X2')
-        plt.legend()
-        plt.show()
     
 
 
@@ -316,8 +278,8 @@ def main():
     # --------------------------
     
     # --------- cancer ---------
-    X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
-    X_test, Y_test = ca.X_test, ca.Y_test
+    #X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
+    #X_test, Y_test = ca.X_test, ca.Y_test
     # --------------------------
 
     # ---------- adult ---------
@@ -366,14 +328,14 @@ def main():
     #kernel = 'rbf'
     #kernel = 'sigmoid'
     
-    C = 1
+    C = 1000
     gamma = .1
     
     degree = 2
     coef0 = 1
     
     plt = True
-    plt = False
+    #plt = False
     # -----------------------------------------
     
     # ----- ノイズの半径の範囲を指定 (最小値, 最大値) -----
@@ -443,7 +405,7 @@ def main():
 
 
         if plt == True:
-            mysvm.plt_Data_and_Boundary_sim()
+            mysvm.plt_Data_and_Boundary_L("plt_L_original")
 
     else:
         Y_pred_no_int = None
@@ -559,13 +521,13 @@ def main():
     # 各データについて確認
     if rank == 0:        
         # 目的関数の末尾の値の推移，データの個数の推移をプロット
-        mysvm.plt_Objective_Last_Values()
-        mysvm.plt_Num_Samples()
-        mysvm.plt_Num_Samples_Total()
+        mysvm.plt_Objective_Last_Values("plt_Objective_Last_Values_original")
+        mysvm.plt_Num_Samples("plt_Num_Samples_original")
+        mysvm.plt_Num_Samples_Total("plt_Num_Samples_Total_original")
     comm.Barrier()
     
     if plt == True:
-        mysvm.plt_Data_and_Boundary()
+        mysvm.plt_Data_and_Boundary_D("plt_D_original")
     comm.Barrier()
 
 
@@ -594,7 +556,7 @@ def main():
     # ----------------------------------------------
     
     if plt == True:
-        mysvm.plt_Data_and_Boundary()
+        mysvm.plt_Data_and_Boundary_D("plt_D_original_each")
     comm.Barrier()
 
 
@@ -668,7 +630,7 @@ def main():
         print('', flush=True)
             
         if plt == True:
-            mysvm.plt_Data_and_Boundary_sim()
+            mysvm.plt_Data_and_Boundary_L("plt_L_pseudo")
     comm.Barrier()
 
 
@@ -704,7 +666,7 @@ def main():
     comm.Barrier()
         
     if plt == True:
-        mysvm.plt_Data_and_Boundary()
+        mysvm.plt_Data_and_Boundary_D("plt_D_pseudo_each")
     comm.Barrier()
     
     
@@ -827,13 +789,13 @@ def main():
     # 各データについて確認
     if rank == 0:        
         # 目的関数の末尾の値の推移，データの個数の推移をプロット
-        mysvm.plt_Objective_Last_Values()
-        mysvm.plt_Num_Samples()
-        mysvm.plt_Num_Samples_Total()
+        mysvm.plt_Objective_Last_Values("plt_Objective_Last_Values_pseudo")
+        mysvm.plt_Num_Samples("plt_Num_Samples_pseudo")
+        mysvm.plt_Num_Samples_Total("plt_Num_Samples_Total_pseudo")
     comm.Barrier()
     
     if plt == True:
-        mysvm.plt_Data_and_Boundary()
+        mysvm.plt_Data_and_Boundary_D("plt_D_pseudo")
 
     
     
