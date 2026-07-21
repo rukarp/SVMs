@@ -1,1 +1,2 @@
-localhost slots=6
+yamada-ubuntu1 slots=3
+yamada-ubuntu2 slots=3
