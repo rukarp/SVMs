@@ -1,0 +1,36 @@
+---------- Centralized Learning ----------
+low: 170 samples, up: 285 samples
+
+    agent0 (455 datas) -> Successfully converged. Iterations: 138
+
+fitting time : 0.045610904693603516
+
+Accuracy: 99.12%
+F1: 99.30%
+[MIN, MAX]: [-8.181822, 5.157316]
+
+
+---------- Distributed Learning----------
+Agent 0 low: 44 samples, up: 15samples
+Agent 1 low: 44 samples, up: 32samples
+Agent 2 low: 38 samples, up: 45samples
+Agent 3 low: 34 samples, up: 60samples
+Agent 4 low: 8 samples, up: 61samples
+
+Agent 5 low: 2 samples, up: 72samples
+roop 0
+    agent5 (74 datas) -> Successfully converged. Iterations: 28
+    agent4 (69 datas) -> Successfully converged. Iterations: 27
+    agent0 (59 datas) -> Successfully converged. Iterations: 43
+    agent3 (94 datas) -> Successfully converged. Iterations: 21
+    agent1 (76 datas) -> Successfully converged. Iterations: 60
+    agent2 (83 datas) -> Successfully converged. Iterations: 37
+
+roop 1
+    agent5 (79 datas) -> Successfully converged. Iterations: 21
+    agent4 (83 datas) -> Successfully converged. Iterations: 19
+    agent0 (71 datas) -> Successfully converged. Iterations: 36
+    agent1 (113 datas) -> Successfully converged. Iterations: 74
+    agent2 (106 datas) -> Successfully converged. Iterations: 67
+    agent3 (121 datas) -> Successfully converged. Iterations: 55
+

@@ -36,6 +36,7 @@ import data_airline as ai
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
+host = socket.gethostname()
 
 buffer_size = 32768
 
@@ -271,6 +272,13 @@ def main():
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
+    host = socket.gethostname()
+
+    # MPIのrankとhostを表示する
+    for i in range(size):
+        if rank == i:
+            print(f"rank={rank}, host={host}")
+        comm.Barrier()
     
     # ---------- iris ----------
     X_train, Y_train = ir.X6_5_train, ir.Y6_5_train
