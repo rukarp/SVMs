@@ -1,0 +1,29 @@
+[main 4bccbe4] Update 2026-07-21 15:39:31
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+=== 他PCを更新 ===
+[yamada-ubuntu1]
+Already up to date.
+[yamada-ubuntu2]
+Updating ddb4ed0..4bccbe4
+Fast-forward
+ hostfile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+完了
+rank=0, host=yamada-ubuntu1
+rank=1, host=yamada-ubuntu1
+rank=2, host=yamada-ubuntu1
+rank=3, host=yamada-ubuntu2
+rank=4, host=yamada-ubuntu2
+rank=5, host=yamada-ubuntu2
+---------- Centralized Learning ----------
+low: 170 samples, up: 285samples
+
+0 (455, 30) (455,)
+    agent0 (455 datas) -> Successfully converged. Iterations: 138
+
+fitting time : 0.04036450386047363
+
+Accuracy: 99.12%
+F1: 99.30%
+[MIN, MAX]: [-8.181822165246, 5.157316464898]
+
