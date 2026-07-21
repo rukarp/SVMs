@@ -4,7 +4,7 @@
 hosts=(
     yamada-ubuntu1
     yamada-ubuntu2
-    yamada-ubuntu3
+    #yamada-ubuntu3
 )
 
 # Gitリポジトリか確認
