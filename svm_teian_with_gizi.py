@@ -13,6 +13,7 @@ import numpy as np
 
 # MPI
 from mpi4py import MPI
+import socket
 
 # リストのコピー用
 import copy
