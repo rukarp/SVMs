@@ -93,13 +93,13 @@ def main():
         comm.Barrier()
     
     # ---------- iris ----------
-    X_train, Y_train = ir.X6_5_train, ir.Y6_5_train
+    X_train, Y_train = ir.X6_1_train, ir.Y6_1_train
     X_test, Y_test = ir.X_test, ir.Y_test
     # --------------------------
     
     # --------- cancer ---------
-    X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
-    X_test, Y_test = ca.X_test, ca.Y_test
+    #X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
+    #X_test, Y_test = ca.X_test, ca.Y_test
     # --------------------------
 
     # ---------- adult ---------
@@ -120,14 +120,14 @@ def main():
     #kernel = 'rbf'
     #kernel = 'sigmoid'
     
-    C = 1
+    C = 1000
     gamma = 1
     
     degree = 2
     coef0 = 1
     
     plt = True
-    plt = False
+    #plt = False
     # -----------------------------------------
     
     # ----- ノイズの半径の範囲を指定 (最小値, 最大値) -----

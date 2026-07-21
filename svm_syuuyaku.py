@@ -130,8 +130,8 @@ def main():
 
 
 
-    mysvm.plt_Objective_Values()
-    mysvm.plt_Data_and_Boundary()
+    mysvm.plt_Objective_Values("objective_value")
+    mysvm.plt_Data_and_Boundary_L("plt")
     
     
     

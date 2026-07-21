@@ -54,6 +54,8 @@ host = socket.gethostname()
 
 #buffer_size = 32768
 
+SAVE_DIR = "fig/DSMO"
+
 class BaseDSMO:
     def __init__(self, C=float("inf"), kernel='linear', lamda =.005, degree=2, gamma=1.0, coef0=0.0, max_iterations= 100000, tol= 1e-3, ME = 1e-10):
         """
@@ -795,7 +797,7 @@ class BaseDSMO:
         plt.ylabel('Value')
         plt.legend()
         #plt.show()
-        plt.savefig(f"fig/{filename}.pdf")
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
         
     
    
@@ -821,7 +823,7 @@ class BaseDSMO:
         plt.grid(True)
         plt.legend()
         #plt.show()
-        plt.savefig(f"fig/{filename}.pdf")
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
         
     
 
@@ -900,7 +902,7 @@ class BaseDSMO:
             plt.tight_layout()  
             #plt.tight_layout(rect=[0, 0, 1, 0.85])        
             #plt.show()
-            plt.savefig(f"fig/{filename}.pdf")
+            plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
     
     def plt_Data_and_Boundary_L(self, filename, x_range=(-0.05, 1.05), y_range=(-0.05, 1.05)):
         
@@ -939,4 +941,4 @@ class BaseDSMO:
         #plt.ylabel('petal width (cm)')
         plt.legend()
         #plt.show()
-        plt.savefig(f"fig/{filename}.pdf")
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")

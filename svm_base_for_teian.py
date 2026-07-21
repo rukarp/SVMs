@@ -27,7 +27,7 @@ size = comm.Get_size()
 
 buffer_size = 32768
 
-
+SAVE_DIR = "fig/svm"
 
 
 # 提案手法用のクラス
@@ -124,9 +124,11 @@ class BaseSVM_for_Teian(MySVM):
     
     
     
-    def plt_Data_and_Boundary(self, x_range=(-0.05, 1.05), y_range=(-0.05, 1.05)):
+    def plt_Data_and_Boundary_D(self, filename, x_range=(-0.05, 1.05), y_range=(-0.05, 1.05)):
                 
         #データポイントと決定境界をプロットする関数
+        
+        plt.figure()
         
         num_plots = size
         fig, axes = plt.subplots(1, num_plots, figsize=(5 * num_plots, 5))  # 横並びにプロット
@@ -188,21 +190,22 @@ class BaseSVM_for_Teian(MySVM):
                 ax.set_aspect('equal')
         
             #fig.suptitle(f'k = {loop}', fontsize=16)
+            plt.rcParams['pdf.fonttype'] = 42
+            plt.rcParams['ps.fonttype'] = 42
     
             handles, labels = ax.get_legend_handles_labels()
             fig.legend(handles, labels, loc='lower right')
             plt.tight_layout()  
-            #plt.tight_layout(rect=[0, 0, 1, 0.85])   
-
-            plt.rcParams['pdf.fonttype'] = 42
-            plt.rcParams['ps.fonttype'] = 42     
-            plt.show()
+            #plt.tight_layout(rect=[0, 0, 1, 0.85])        
+            #plt.show()
+            plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
 
     
-    def plt_Objective_Last_Values(self):
+    def plt_Objective_Last_Values(self, filename):
         """
         ステップごとの目的関数の値をプロットする関数
         """
+        plt.figure()
         colors=['r', 'b', 'g', 'y', 'm', 'c']
         for i in range(len(self.objective_last_value_list)):
             data = self.objective_last_value_list[i][:-1]
@@ -227,13 +230,15 @@ class BaseSVM_for_Teian(MySVM):
         
         plt.rcParams['pdf.fonttype'] = 42
         plt.rcParams['ps.fonttype'] = 42
-        plt.show()
+        #plt.show()
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
         
     
-    def plt_Num_Samples(self):
+    def plt_Num_Samples(self, filename):
         """
         データ数の推移をプロット
         """
+        plt.figure()
         colors=['r', 'b', 'g', 'y', 'm', 'c']
         
         for i in range(size):
@@ -257,12 +262,14 @@ class BaseSVM_for_Teian(MySVM):
 
         plt.rcParams['pdf.fonttype'] = 42
         plt.rcParams['ps.fonttype'] = 42
-        plt.show()
-    
-    def plt_Num_Samples_Total(self):
+        #plt.show()
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
+
+    def plt_Num_Samples_Total(self, filename):
         """
         データ数の推移をプロット(データを削除しない場合の通算個数)
         """
+        plt.figure()
         colors=['r', 'b', 'g', 'y', 'm', 'c']
         
         for i in range(size):
@@ -285,6 +292,6 @@ class BaseSVM_for_Teian(MySVM):
         
         plt.rcParams['pdf.fonttype'] = 42
         plt.rcParams['ps.fonttype'] = 42
-        plt.show()
-    
+        #plt.show()
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
     

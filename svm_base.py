@@ -7,7 +7,7 @@ import time
 # グラフのプロット用
 import matplotlib.pyplot as plt
 
-
+SAVE_DIR = "fig/svm"
 
 # fit 関数以外をまとめた親クラス
 class BaseSVM:
@@ -478,7 +478,9 @@ class BaseSVM:
         plt.legend()
         plt.show()"""
     
-    def plt_Data_and_Boundary(self, x_range=(-0.05, 1.05), y_range=(-0.05, 1.05)):
+    def plt_Data_and_Boundary_L(self, filename, x_range=(-0.05, 1.05), y_range=(-0.05, 1.05)):
+        
+        plt.figure()
         
         x_min, x_max = x_range
         y_min, y_max = y_range
@@ -512,13 +514,16 @@ class BaseSVM:
 
         plt.rcParams['pdf.fonttype'] = 42
         plt.rcParams['ps.fonttype'] = 42
-        plt.show()
+        #plt.show()
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
 
         
-    def plt_Objective_Values(self):
+    def plt_Objective_Values(self, filename):
         
         # 目的関数の推移をプロットする関数
         
+        plt.figure()
+
         plt.plot(self.objective_value, label='objective function\'s value')
         plt.xlabel('Iterations')
         plt.ylabel('Value')
@@ -526,4 +531,5 @@ class BaseSVM:
 
         plt.rcParams['pdf.fonttype'] = 42
         plt.rcParams['ps.fonttype'] = 42
-        plt.show()
+        #plt.show()
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")

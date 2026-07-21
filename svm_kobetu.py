@@ -34,6 +34,8 @@ size = comm.Get_size()
 
 buffer_size = 32768
 
+SAVE_DIR = "fig/svm"
+
 class MySVM_K(MySVM_t):
             
     def fit(self, X, y):
@@ -74,22 +76,26 @@ class MySVM_K(MySVM_t):
        
     
     
-    def plt_Objective_Values(self):
+    def plt_Objective_Values(self, filename):
         """
         目的関数の値をプロットする関数
         """
-        colors=['r', 'b', 'g', 'y', 'm', 'c']
-        for i in range(len(self.objective_value_list)):
-            plt.plot(self.objective_value_list[i], c = colors[i], label= f'Agent {i}')
+        plt.figure()
+        colors='b'
+        plt.plot(self.objective_value_list[rank], c = colors, label= f'Objective_Values')
         #plt.plot(np.sum(self.objective_value_list, axis=0), c = 'black', label= f'sum')
+
+        plt.rcParams['pdf.fonttype'] = 42
+        plt.rcParams['ps.fonttype'] = 42
+
         plt.xlabel('Iterations')
         plt.ylabel('Value')
         plt.legend()
-        plt.show()
+        #plt.show()
+        plt.savefig(f"{SAVE_DIR}/{filename}.pdf")
     
-
-        
-        
+    
+    
         
 def main():
     
@@ -98,7 +104,7 @@ def main():
     size = comm.Get_size()
     
     # ---------- iris ----------
-    X_train, Y_train = ir.X4_5_train, ir.Y4_5_train
+    X_train, Y_train = ir.X6_5_train, ir.Y6_5_train
     X_test, Y_test = ir.X_test, ir.Y_test
     # --------------------------
     
@@ -118,7 +124,7 @@ def main():
     # -------------------------
 
     # --- カーネルを指定してインスタンスを生成 ---
-    mysvm = MySVM_K(kernel = 'linear', C = 10)
+    mysvm = MySVM_K(kernel = 'linear', C = 1000)
     #mysvm = MySVM(kernel = 'poly', degree = 2, coef0 = 1.0, C = 1)
     #mysvm = MySVM(kernel = 'rbf', gamma = 1, C = 1)
     #mysvm = MySVM(kernel = 'sigmoid', gamma = 1.0, coef0 = 1.0, C = 1.0)
@@ -248,10 +254,10 @@ def main():
         # -------------------------------------------------------------------------
     
         # 目的関数の値の推移をプロット
-        mysvm.plt_Objective_Values()
+        mysvm.plt_Objective_Values("plt_L")
     comm.Barrier()
     
-    mysvm.plt_Data_and_Boundary()
+    mysvm.plt_Data_and_Boundary_L("plt_L")
     
 
 if __name__ == "__main__":
