@@ -79,13 +79,13 @@ def main():
     # --------------------------
     
     # --------- cancer ---------
-    #X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
-    #X_test, Y_test = ca.X_test, ca.Y_test
+    X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
+    X_test, Y_test = ca.X_test, ca.Y_test
     # --------------------------
     
     # ---------- adult ---------
-    #X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
-    #X_test, Y_test = ad.X_test, ad.Y_test
+    X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
+    X_test, Y_test = ad.X_test, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
@@ -101,14 +101,14 @@ def main():
     #kernel = 'rbf'
     #kernel = 'sigmoid'
     
-    C = 1000
+    C = 1
     gamma = 1
     
     degree = 2
     coef0 = 1
     
     plt = True
-    #plt = False
+    plt = False
     # -----------------------------------------
 
     # --- カーネルを指定してインスタンスを生成 ---
