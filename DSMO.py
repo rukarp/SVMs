@@ -89,8 +89,8 @@ def main():
     # --------------------------
     
     # -------- airline ---------
-    #X_train, Y_train = ai.X6_5_train, ai.Y6_5_train
-    #X_test, Y_test = ai.X_test, ai.Y_test
+    X_train, Y_train = ai.X6_5_train, ai.Y6_5_train
+    X_test, Y_test = ai.X_test, ai.Y_test
     # --------------------------
     
     # -------------------------
