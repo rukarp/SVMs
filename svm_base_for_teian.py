@@ -186,7 +186,11 @@ class BaseSVM_for_Teian(MySVM):
                 chunk_size = buffer_size // data_unit_size - 1
                 # サポートベクターのチャンク数を計算
                 num_chunks = (len(X_sv_inner) + chunk_size - 1) // chunk_size
-    
+                print(rank,
+      "neighbor=", neighbor,
+      "num_chunks=", num_chunks,
+      "SV=", len(X_sv_inner),
+      flush=True)
                 # データ送信・受信の実装
                 for neighbor in range(size):
                     if self.A[neighbor] == 1:
