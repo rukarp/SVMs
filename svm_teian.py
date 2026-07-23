@@ -55,8 +55,8 @@ def main():
     # --------------------------
     
     # --------- cancer ---------
-    #X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
-    #X_test, Y_test = ca.X_test, ca.Y_test
+    X_train, Y_train = ca.X6_5_train, ca.Y6_5_train
+    X_test, Y_test = ca.X_test, ca.Y_test
     # --------------------------
 
     # ---------- adult ---------
@@ -100,7 +100,7 @@ def main():
     # -------------------------
 
     # --- カーネルを指定してインスタンスを生成 ---
-    mysvm = MySVM_T(kernel = 'linear', C = 1000)
+    mysvm = MySVM_T(kernel = 'linear', C = 1)
     #mysvm = MySVM_T(kernel = 'poly', degree = 2, coef0 = 1.0, C = 1)
     #mysvm = MySVM_T(kernel = 'rbf', gamma = 1, C = 1)
     #mysvm = MySVM_T(kernel = 'sigmoid', gamma = 1.0, coef0 = 1.0, C = 1.0)
