@@ -178,8 +178,7 @@ class BaseSVM_for_Teian(MySVM):
                 ind_active_alphas = np.concatenate((self.ind_sv, self.ind_inner))
                 X_sv_inner = self.X[ind_active_alphas]
                 y_sv_inner = self.y[ind_active_alphas]
-                                
-                            
+                                    
                 # データ一組（特徴量1行 + ラベル1つ + インデント番号1つ）のバイトサイズを計算
                 data_unit_size = (X_sv_inner.itemsize * X_sv_inner.shape[1]) + y_sv_inner.itemsize + ind_active_alphas.itemsize
                 # チャンクサイズを計算（バッファサイズ内に収まるデータ一組の数）
@@ -189,29 +188,28 @@ class BaseSVM_for_Teian(MySVM):
 
                 # データ送信・受信の実装
                 for neighbor in range(size):
+                
                     if self.A[neighbor] == 1:
                                 
                         # 送信するチャンク数を相手に送信
-                        req_send_chunks = comm.isend(num_chunks, dest=neighbor)
-                        req_recv_chunks = comm.irecv(source=neighbor)
-                        recv_num_chunks = req_recv_chunks.wait()  # 受信するチャンク数
-                        req_send_chunks.wait()
-    
+                        recv_num_chunks = comm.sendrecv(sendobj=num_chunks, dest=neighbor, source=neighbor)
+                        
                         # 各チャンクを送信
-                        for i in range(num_chunks):
-                            start = i * chunk_size
-                            end = min((i + 1) * chunk_size, len(X_sv_inner))
-                
-                            req_send = comm.isend((X_sv_inner[start:end], y_sv_inner[start:end], ind_active_alphas[start:end]), dest=neighbor)
-                            req_send.wait()
-    
-                        # 各チャンクを受信し，データを追加
-                        for i in range(recv_num_chunks):
-                            req_recv = comm.irecv(source=neighbor)
-                            recv_X, recv_y, recv_ind = req_recv.wait()
-    
-                            self.X[recv_ind] = recv_X
-                            self.y[recv_ind] = recv_y
+                        for i in range(max(num_chunks, recv_num_chunks)):
+                            send_obj = None
+
+                            if i < num_chunks:
+                                start = i * chunk_size
+                                end = min((i + 1) * chunk_size, len(X_sv_inner))
+
+                                send_obj = (X_sv_inner[start:end], y_sv_inner[start:end], ind_active_alphas[start:end])
+
+                            recv_obj = comm.sendrecv(sendobj=send_obj, dest=neighbor, source=neighbor)
+
+                            if recv_obj is not None:
+                                recv_X, recv_y, recv_ind = recv_obj
+                                self.X[recv_ind] = recv_X
+                                self.y[recv_ind] = recv_y
     
     
     def fit_independent(self, X, y):
