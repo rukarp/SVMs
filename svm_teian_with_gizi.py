@@ -42,12 +42,6 @@ host = socket.gethostname()
 buffer_size = 32768
 
 class MySVM_TG(MySVM_t, MySVM_g):
-    
-    def __init__(self, max_roop=100, **kwargs):
-        super().__init__(**kwargs)
-        self.max_roop = max_roop
-
-        
 
     def calculate_SV_RMSE(self, Y_pred_ori_no_int, Y_pred_no_int):
         # 標準偏差を計算

@@ -33,6 +33,10 @@ SAVE_DIR = "fig/svm"
 # 提案手法用のクラス
 class BaseSVM_for_Teian(MySVM):   
 
+    def __init__(self, max_roop=100, **kwargs):
+            super().__init__(**kwargs)
+            self.max_roop = max_roop
+
     def fit(self, X, y, A, L):
             """
             SVMモデルをデータに適合させる関数(提案手法)
