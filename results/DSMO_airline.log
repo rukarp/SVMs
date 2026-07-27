@@ -1,16 +1,16 @@
 rank=0, host=yamada-ubuntu1
 rank=1, host=yamada-ubuntu1
-rank=2, host=yamada-ubuntu1
+rank=2, host=yamada-ubuntu2
 rank=3, host=yamada-ubuntu2
-rank=4, host=yamada-ubuntu2
-rank=5, host=yamada-ubuntu2
+rank=4, host=yamada-ubuntu3
+rank=5, host=yamada-ubuntu3
 ---------- Centralized Learning ----------
 low: 5869 samples, up: 4490samples
 
 0 (10359, 23) (10359,)
     agent0 (10359 datas) -> Successfully converged. Iterations: 20043
 
-fitting time : 40.57275629043579
+fitting time : 39.83625793457031
 
 Accuracy: 87.49%
 F1: 85.35%
@@ -22,22 +22,22 @@ Agent 0 low: 1333 samples, up: 404 samples
 Agent 1 low: 1310 samples, up: 654 samples
 Agent 2 low: 1283 samples, up: 718 samples
 Agent 3 low: 764 samples, up: 743 samples
-Agent 4 low: 645 samples, up: 980 samples
 
+Agent 4 low: 645 samples, up: 980 samples
 Agent 5 low: 534 samples, up: 991 samples
 20043 -> objective_value:-3391.427246932978, gap:-0.000972422515005622
 
-t_E = 4.344110
-(t_E_1) = (0.688315)
+t_E = 5.670146
+(t_E_1) = (0.675887)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (3.552401)
-t_K = 6.611280
+(t_E_4) = (4.889684)
+t_K = 6.638656
 (t_K_1) = (0.000000)
-(t_K_2) = (0.281950)
-t_a = 1.858596
+(t_K_2) = (0.316083)
+t_a = 1.994910
 
-fitting time : 13.062996864318848
+fitting time : 14.546035051345825
 
 Agent 0
 SV_len: 27
@@ -115,20 +115,20 @@ angle: 0.000000000000 deg (0.000000000000 rad)
 -------- Original Learning ----------
 0 (1737, 23) (1737,)
 1 (1964, 23) (1964,)
-2 (2001, 23) (2001,)
 3 (1507, 23) (1507,)
+2 (2001, 23) (2001,)
 5 (1525, 23) (1525,)
 4 (1625, 23) (1625,)
     agent4 (1625 datas) -> Successfully converged. Iterations: 269
     agent0 (1737 datas) -> Successfully converged. Iterations: 201
+    agent5 (1525 datas) -> Successfully converged. Iterations: 376
     agent2 (2001 datas) -> Successfully converged. Iterations: 370
     agent3 (1507 datas) -> Successfully converged. Iterations: 747
-    agent5 (1525 datas) -> Successfully converged. Iterations: 376
     agent1 (1964 datas) -> Successfully converged. Iterations: 4283
 
-fitting time : 1.093279361725
+fitting time : 1.112096786499
 
-make_fake_data time: 0.24564766883850098
+make_fake_data time: 0.2542085647583008
 
 ---------- Centralized Learning(Pseudo-Data) ----------
 low: 5869 samples, up: 4490samples
@@ -136,7 +136,7 @@ low: 5869 samples, up: 4490samples
 0 (10359, 23) (10359,)
     agent0 (10359 datas) -> Successfully converged. Iterations: 20732
 
-fitting time : 41.28395867347717
+fitting time : 42.09005928039551
 
 Accuracy: 87.41%
 F1: 85.25%
@@ -153,23 +153,23 @@ Agent 0 low: 1333 samples, up: 404samples
 Agent 1 low: 1310 samples, up: 654samples
 Agent 2 low: 1283 samples, up: 718samples
 Agent 3 low: 764 samples, up: 743samples
-Agent 4 low: 645 samples, up: 980samples
 
+Agent 4 low: 645 samples, up: 980samples
 Agent 5 low: 534 samples, up: 991samples
 0 (1737, 23) (1737,)
-5 (1525, 23) (1525,)
-4 (1625, 23) (1625,)
-3 (1507, 23) (1507,)
 1 (1964, 23) (1964,)
+4 (1625, 23) (1625,)
+5 (1525, 23) (1525,)
+3 (1507, 23) (1507,)
 2 (2001, 23) (2001,)
-    agent2 (2001 datas) -> Successfully converged. Iterations: 267
     agent4 (1625 datas) -> Successfully converged. Iterations: 187
-    agent3 (1507 datas) -> Successfully converged. Iterations: 403
-    agent0 (1737 datas) -> Successfully converged. Iterations: 1200
     agent5 (1525 datas) -> Successfully converged. Iterations: 310
+    agent0 (1737 datas) -> Successfully converged. Iterations: 1200
+    agent2 (2001 datas) -> Successfully converged. Iterations: 267
+    agent3 (1507 datas) -> Successfully converged. Iterations: 403
     agent1 (1964 datas) -> Successfully converged. Iterations: 8345
 
-fitting time : 1.3284633159637451
+fitting time : 1.3566653728485107
 
 
 ---------- Distributed Learning(Pseudo-Data)----------
@@ -177,22 +177,22 @@ Agent 0 low: 1333 samples, up: 404samples
 Agent 1 low: 1310 samples, up: 654samples
 Agent 2 low: 1283 samples, up: 718samples
 Agent 3 low: 764 samples, up: 743samples
-Agent 4 low: 645 samples, up: 980samples
 
+Agent 4 low: 645 samples, up: 980samples
 Agent 5 low: 534 samples, up: 991samples
 20732 -> objective_value:-3433.267360046773, gap:-0.0009832517378338679
 
-t_E = 5.095277
-(t_E_1) = (0.741039)
+t_E = 23.349747
+(t_E_1) = (0.695197)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (4.237525)
-t_K = 7.009022
+(t_E_4) = (22.545340)
+t_K = 7.748751
 (t_K_1) = (0.000000)
-(t_K_2) = (0.387123)
-t_a = 3.055540
+(t_K_2) = (1.373118)
+t_a = 5.024392
 
-fitting time : 15.43426775932312
+fitting time : 36.41887927055359
 
 Agent 0
 SV_len: 26

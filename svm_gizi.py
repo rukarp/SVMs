@@ -46,11 +46,11 @@ def main():
     # --------------------------
         
     # ---------- adult ---------
-    #X_train, X_test, Y_train, Y_test = ad.X_train, ad.X_test, ad.Y_train, ad.Y_test
+    X_train, X_test, Y_train, Y_test = ad.X_train, ad.X_test, ad.Y_train, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
-    #X_train, X_test, Y_train, Y_test = ai.X_train, ai.X_test, ai.Y_train, ai.Y_test
+    X_train, X_test, Y_train, Y_test = ai.X_train, ai.X_test, ai.Y_train, ai.Y_test
     # --------------------------
     
     # ------- rbfサンプル -------
@@ -176,9 +176,9 @@ def main():
         # ----------------------------------"""
 
         if i >= 0:
-            mysvm.plt_Objective_Values()
+            mysvm.plt_Objective_Values("plt_Objective_Values")
             if plt == True:
-                mysvm.plt_Data_and_Boundary(x_range=(-0.05, 1.05), y_range=(-0.05, 1.05))
+                mysvm.plt_Data_and_Boundary_L("plt_L")
     
     # Y_predがオリジナルデータとどの程度一致するか
     
