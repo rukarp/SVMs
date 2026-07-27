@@ -227,7 +227,7 @@ def main():
         f1 = f1_score(Y_pred, Y_test)
         print(f'F1: {f1 * 100:.2f}%', flush=True)
                 
-        print(f'[MIN, MAX]: [{np.min(Y_pred_no_int):.6f}, {np.max(Y_pred_no_int):.6f}]\n', flush=True)
+        print(f'[MIN, MAX]: [{np.min(Y_pred_no_int):.12f}, {np.max(Y_pred_no_int):.12f}]\n', flush=True)
 
 
         if plt == True:
@@ -319,12 +319,12 @@ def main():
             #f1 = f1_score(Y_pred, Y_test)
             print(f'F1: {f1 * 100:.2f}%', flush=True)
             print(f'SA: {SA* 100:.2f}%', flush=True)
-            print(f'NRMSE: {nrmse:.6f}', flush=True)
-            print(f'NMAE: {nmae:.6f}', flush=True)
-            print(f'[MIN, MAX]: [{min_f:.6f}, {max_f:.6f}]', flush=True)
+            print(f'NRMSE: {nrmse:.12f}', flush=True)
+            print(f'NMAE: {nmae:.12f}', flush=True)
+            print(f'[MIN, MAX]: [{min_f:.12f}, {max_f:.12f}]', flush=True)
             if mysvm.kernel == "linear":
-                print(f'cos: {cos_theta:.6f}', flush=True)
-                print(f'angle: {theta_deg:.6f} deg ({theta:.6f} rad)', flush=True)
+                print(f'cos: {cos_theta:.12f}', flush=True)
+                print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
             print('', flush=True)
         
         comm.Barrier()
@@ -447,12 +447,12 @@ def main():
             cos_theta, theta, theta_deg = mysvm.calculate_w_cos(w_ori, mysvm.w)
 
         print(f'SA: {SA* 100:.2f}%', flush=True)
-        print(f'NRMSE: {nrmse:.6f}', flush=True)
-        print(f'NMAE: {nmae:.6f}', flush=True)
-        print(f'[MIN, MAX]: [{min_f:.6f}, {max_f:.6f}]', flush=True)
+        print(f'NRMSE: {nrmse:.12f}', flush=True)
+        print(f'NMAE: {nmae:.12f}', flush=True)
+        print(f'[MIN, MAX]: [{min_f:.12f}, {max_f:.12f}]', flush=True)
         if mysvm.kernel == "linear":
-            print(f'cos: {cos_theta:.6f}', flush=True)
-            print(f'angle: {theta_deg:.6f} deg ({theta:.6f} rad)', flush=True)
+            print(f'cos: {cos_theta:.12f}', flush=True)
+            print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
         print('', flush=True)
             
         if plt == True:
@@ -587,12 +587,12 @@ def main():
             #f1 = f1_score(Y_pred, Y_test)
             print(f'F1: {f1 * 100:.2f}%', flush=True)
             print(f'SA: {SA* 100:.2f}%', flush=True)
-            print(f'NRMSE: {nrmse:.6f}', flush=True)
-            print(f'NMAE: {nmae:.6f}', flush=True)
-            print(f'[MIN, MAX]: [{min_f:.6f}, {max_f:.6f}]', flush=True)
+            print(f'NRMSE: {nrmse:.12f}', flush=True)
+            print(f'NMAE: {nmae:.12f}', flush=True)
+            print(f'[MIN, MAX]: [{min_f:.12f}, {max_f:.12f}]', flush=True)
             if mysvm.kernel == "linear":
-                print(f'cos: {cos_theta:.6f}', flush=True)
-                print(f'angle: {theta_deg:.6f} deg ({theta:.6f} rad)', flush=True)
+                print(f'cos: {cos_theta:.12f}', flush=True)
+                print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
             print('', flush=True)
         
         comm.Barrier()

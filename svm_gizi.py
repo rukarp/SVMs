@@ -96,7 +96,7 @@ def main():
             #X_train, Y_train = mysvm.make_fake_data_random_with_margin(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 1000)
             X_train, Y_train = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
             end = time.time()
-            print(f"make_fake_data time: {end - start:.6f} sec\n")
+            print(f"make_fake_data time: {end - start:.12f} sec\n")
             
             # ハードマージンに変更
             #mysvm.C = float("inf")
@@ -192,19 +192,19 @@ def main():
         print(f'Y_pred_same({i}): {Y_pred_accuracy * 100:.2f}%')
         
         rmse = np.sqrt(np.mean((Y_pred_no_int[0] - Y_pred_no_int[i]) ** 2))
-        print(f'RMSE({i}): {rmse:.6f}')
+        print(f'RMSE({i}): {rmse:.12f}')
         
         mae = np.mean(np.abs(Y_pred_no_int[0] - Y_pred_no_int[i]))
-        print(f'MAE({i}): {mae:.6f}')
+        print(f'MAE({i}): {mae:.12f}')
         
         #rms_f = np.sqrt(np.mean(Y_pred_no_int[0]**2))
         nrmse = rmse / std_f
-        print(f'NRMSE_std({i}): {nrmse:.6f}')
+        print(f'NRMSE_std({i}): {nrmse:.12f}')
         
         nmae = mae / std_f
-        print(f'NMAE_std({i}): {nmae:.6f}')
+        print(f'NMAE_std({i}): {nmae:.12f}')
         
-        print(f'pred [Max, Min]: [{np.max(Y_pred_no_int[i]):.6f}, {np.min(Y_pred_no_int[i]):.6f}]')
+        print(f'pred [Max, Min]: [{np.max(Y_pred_no_int[i]):.12f}, {np.min(Y_pred_no_int[i]):.12f}]')
         
         # wのコサイン類似度を計算
         if mysvm.kernel == "linear":
@@ -217,8 +217,8 @@ def main():
             # 角度（度）
             theta_deg = np.degrees(theta)
 
-            print(f"cos({i}): {cos_theta:.6f}")
-            print(f"angle({i}): {theta_deg:.6f} deg ({theta:.6f} rad)")
+            print(f"cos({i}): {cos_theta:.12f}")
+            print(f"angle({i}): {theta_deg:.12f} deg ({theta:.12f} rad)")
 
         
 
