@@ -109,8 +109,8 @@ def main():
     # --------------------------
 
     # ---------- adult ---------
-    X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
-    X_test, Y_test = ad.X_test, ad.Y_test
+    #X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
+    #X_test, Y_test = ad.X_test, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
@@ -328,6 +328,31 @@ def main():
             print('', flush=True)
         
         comm.Barrier()
+    
+    if mysvm.kernel == "linear":
+        metrics = np.array([accuracy, f1, SA, nrmse, nmae, cos_theta, theta_deg], dtype=float)
+    else:
+        metrics = np.array([accuracy, f1, SA, nrmse, nmae, np.nan, np.nan], dtype=float)
+
+    sum_metrics = np.zeros_like(metrics)
+    valid = np.array([1, 1, 1, 1, 1, int(mysvm.kernel == "linear"), int(mysvm.kernel == "linear")], dtype=int)
+    sum_valid = np.zeros_like(valid)
+
+    comm.Reduce(metrics, sum_metrics, op=MPI.SUM, root=0)
+    comm.Reduce(valid, sum_valid, op=MPI.SUM, root=0)
+
+    if rank == 0:
+        mean_metrics = sum_metrics / sum_valid
+        print("===== Average =====")
+        print(f'Accuracy: {mean_metrics[0] * 100:.2f}%', flush=True)
+        print(f'F1:       {mean_metrics[1] * 100:.2f}%', flush=True)
+        print(f'SA:       {mean_metrics[2] * 100:.2f}%', flush=True)
+        print(f'NRMSE:    {mean_metrics[3]:.12f}', flush=True)
+        print(f'NMAE:     {mean_metrics[4]:.12f}', flush=True)
+        if sum_valid[5] > 0:
+            print(f'cos:      {mean_metrics[5]:.12f}', flush=True)
+            print(f'angle:    {mean_metrics[6]:.12f} deg', flush=True)
+    comm.Barrier()
     
     # 受け取ったデータの中でalpha=0となるデータ(余計なデータを獲得)
     exclude_indices = np.concatenate((mysvm.ind_sv, mysvm.ind_inner, mysvm.my_ind))
@@ -596,6 +621,31 @@ def main():
             print('', flush=True)
         
         comm.Barrier()
+        
+    if mysvm.kernel == "linear":
+        metrics = np.array([accuracy, f1, SA, nrmse, nmae, cos_theta, theta_deg], dtype=float)
+    else:
+        metrics = np.array([accuracy, f1, SA, nrmse, nmae, np.nan, np.nan], dtype=float)
+
+    sum_metrics = np.zeros_like(metrics)
+    valid = np.array([1, 1, 1, 1, 1, int(mysvm.kernel == "linear"), int(mysvm.kernel == "linear")], dtype=int)
+    sum_valid = np.zeros_like(valid)
+
+    comm.Reduce(metrics, sum_metrics, op=MPI.SUM, root=0)
+    comm.Reduce(valid, sum_valid, op=MPI.SUM, root=0)
+
+    if rank == 0:
+        mean_metrics = sum_metrics / sum_valid
+        print("===== Average =====")
+        print(f'Accuracy: {mean_metrics[0] * 100:.2f}%', flush=True)
+        print(f'F1:       {mean_metrics[1] * 100:.2f}%', flush=True)
+        print(f'SA:       {mean_metrics[2] * 100:.2f}%', flush=True)
+        print(f'NRMSE:    {mean_metrics[3]:.12f}', flush=True)
+        print(f'NMAE:     {mean_metrics[4]:.12f}', flush=True)
+        if sum_valid[5] > 0:
+            print(f'cos:      {mean_metrics[5]:.12f}', flush=True)
+            print(f'angle:    {mean_metrics[6]:.12f} deg', flush=True)
+    comm.Barrier()
     
     # 受け取ったデータの中でalpha=0となるデータ(余計なデータを獲得)
     exclude_indices = np.concatenate((mysvm.ind_sv, mysvm.ind_inner, mysvm.my_ind))

@@ -46,11 +46,11 @@ def main():
     # --------------------------
         
     # ---------- adult ---------
-    X_train, X_test, Y_train, Y_test = ad.X_train, ad.X_test, ad.Y_train, ad.Y_test
+    #X_train, X_test, Y_train, Y_test = ad.X_train, ad.X_test, ad.Y_train, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
-    X_train, X_test, Y_train, Y_test = ai.X_train, ai.X_test, ai.Y_train, ai.Y_test
+    #X_train, X_test, Y_train, Y_test = ai.X_train, ai.X_test, ai.Y_train, ai.Y_test
     # --------------------------
     
     # ------- rbfサンプル -------
