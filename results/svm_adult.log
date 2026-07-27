@@ -1,0 +1,6 @@
+rank=0, host=yamada-ubuntu1
+rank=1, host=yamada-ubuntu1
+rank=2, host=yamada-ubuntu2
+rank=3, host=yamada-ubuntu2
+rank=4, host=yamada-ubuntu3
+rank=5, host=yamada-ubuntu3
