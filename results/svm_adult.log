@@ -4,3 +4,142 @@ rank=2, host=yamada-ubuntu2
 rank=3, host=yamada-ubuntu2
 rank=4, host=yamada-ubuntu3
 rank=5, host=yamada-ubuntu3
+---------- Centralized Learning ----------
+low: 1873 samples, up: 1869 samples
+
+    agent0 (3742 datas) -> Successfully converged. Iterations: 18828
+
+fitting time : 9.22597622871399
+
+Accuracy: 82.16%
+F1: 83.05%
+[MIN, MAX]: [-4.363802, 10.353268]
+
+
+---------- Distributed Learning----------
+Agent 0 low: 401 samples, up: 174samples
+Agent 1 low: 363 samples, up: 212samples
+Agent 2 low: 337 samples, up: 357samples
+Agent 3 low: 312 samples, up: 362samples
+
+Agent 4 low: 238 samples, up: 370samples
+Agent 5 low: 222 samples, up: 394samples
+roop 0
+    agent4 (608 datas) -> Successfully converged. Iterations: 280
+    agent0 (575 datas) -> Successfully converged. Iterations: 1515
+    agent2 (694 datas) -> Successfully converged. Iterations: 156
+    agent1 (575 datas) -> Successfully converged. Iterations: 1693
+    agent5 (616 datas) -> Successfully converged. Iterations: 1844
+    agent3 (674 datas) -> Successfully converged. Iterations: 466
+
+roop 1
+    agent5 (665 datas) -> Successfully converged. Iterations: 3168
+    agent4 (798 datas) -> Successfully converged. Iterations: 2676
+    agent1 (668 datas) -> Successfully converged. Iterations: 4114
+    agent3 (742 datas) -> Successfully converged. Iterations: 604
+    agent0 (678 datas) -> Successfully converged. Iterations: 12959
+    agent2 (825 datas) -> Successfully converged. Iterations: 3395
+
+roop 2
+    agent5 (700 datas) -> Successfully converged. Iterations: 3265
+    agent4 (833 datas) -> Successfully converged. Iterations: 2881
+    agent1 (734 datas) -> Successfully converged. Iterations: 4518
+    agent0 (718 datas) -> Successfully converged. Iterations: 12704
+    agent3 (1018 datas) -> Successfully converged. Iterations: 3222
+    agent2 (963 datas) -> Successfully converged. Iterations: 23275
+
+roop 3
+    agent5 (738 datas) -> Successfully converged. Iterations: 3345
+    agent4 (991 datas) -> Successfully converged. Iterations: 4577
+    agent0 (787 datas) -> Successfully converged. Iterations: 11166
+    agent1 (854 datas) -> Successfully converged. Iterations: 11271
+    agent3 (1202 datas) -> Successfully converged. Iterations: 4448
+    agent2 (1207 datas) -> Successfully converged. Iterations: 43718
+
+roop 4
+    agent5 (882 datas) -> Successfully converged. Iterations: 4428
+    agent0 (894 datas) -> Successfully converged. Iterations: 4973
+    agent4 (1152 datas) -> Successfully converged. Iterations: 6977
+    agent1 (1087 datas) -> Successfully converged. Iterations: 8538
+    agent3 (1366 datas) -> Successfully converged. Iterations: 21345
+    agent2 (1320 datas) -> Successfully converged. Iterations: 26562
+
+roop 5
+    agent5 (1032 datas) -> Successfully converged. Iterations: 5397
+    agent0 (1136 datas) -> Successfully converged. Iterations: 8070
+    agent4 (1294 datas) -> Successfully converged. Iterations: 12772
+    agent1 (1200 datas) -> Successfully converged. Iterations: 9805
+    agent3 (1493 datas) -> Successfully converged. Iterations: 29663
+    agent2 (1432 datas) -> Successfully converged. Iterations: 31665
+
+roop 6
+    agent5 (1157 datas) -> Successfully converged. Iterations: 7628
+    agent0 (1238 datas) -> Successfully converged. Iterations: 9264
+    agent1 (1335 datas) -> Successfully converged. Iterations: 7964
+    agent4 (1412 datas) -> Successfully converged. Iterations: 32368
+    agent2 (1523 datas) -> Successfully converged. Iterations: 15056
+    agent3 (1629 datas) -> Successfully converged. Iterations: 34797
+
+roop 7
+    agent5 (1262 datas) -> Successfully converged. Iterations: 5813
+    agent0 (1330 datas) -> Successfully converged. Iterations: 6223
+    agent1 (1409 datas) -> Successfully converged. Iterations: 10491
+    agent4 (1522 datas) -> Successfully converged. Iterations: 33568
+    agent2 (1643 datas) -> Successfully converged. Iterations: 11455
+    agent3 (1727 datas) -> Successfully converged. Iterations: 36414
+
+roop 8
+    agent5 (1373 datas) -> Successfully converged. Iterations: 12937
+    agent0 (1391 datas) -> Successfully converged. Iterations: 7913
+    agent1 (1511 datas) -> Successfully converged. Iterations: 7901
+    agent4 (1605 datas) -> Successfully converged. Iterations: 21189
+    agent2 (1706 datas) -> Successfully converged. Iterations: 17033
+    agent3 (1867 datas) -> Successfully converged. Iterations: 20448
+
+roop 9
+    agent5 (1450 datas) -> Successfully converged. Iterations: 22870
+    agent1 (1569 datas) -> Successfully converged. Iterations: 5791
+    agent0 (1495 datas) -> Successfully converged. Iterations: 14983
+    agent4 (1696 datas) -> Successfully converged. Iterations: 27745
+    agent2 (1775 datas) -> Successfully converged. Iterations: 8581
+    agent3 (1927 datas) -> Successfully converged. Iterations: 33436
+
+roop 10
+    agent5 (1541 datas) -> Successfully converged. Iterations: 23165
+    agent0 (1542 datas) -> Successfully converged. Iterations: 10643
+    agent1 (1642 datas) -> Successfully converged. Iterations: 13777
+    agent4 (1751 datas) -> Successfully converged. Iterations: 46495
+    agent2 (1808 datas) -> Successfully converged. Iterations: 17688
+    agent3 (1982 datas) -> Successfully converged. Iterations: 37355
+
+roop 11
+    agent0 (1608 datas) -> Successfully converged. Iterations: 9482
+    agent4 (1803 datas) -> Successfully converged. Iterations: 19814
+    agent1 (1694 datas) -> Successfully converged. Iterations: 7710
+    agent5 (1593 datas) -> Successfully converged. Iterations: 33975
+    agent2 (1870 datas) -> Successfully converged. Iterations: 22010
+    agent3 (2024 datas) -> Successfully converged. Iterations: 61299
+
+roop 12
+    agent5 (1617 datas) -> Successfully converged. Iterations: 19100
+    agent4 (1854 datas) -> Successfully converged. Iterations: 18673
+    agent0 (1641 datas) -> Successfully converged. Iterations: 11010
+    agent1 (1745 datas) -> Successfully converged. Iterations: 9177
+    agent3 (2101 datas) -> Successfully converged. Iterations: 19002
+    agent2 (1929 datas) -> Successfully converged. Iterations: 36127
+
+roop 13
+    agent5 (1647 datas) -> Successfully converged. Iterations: 18580
+    agent4 (1906 datas) -> Successfully converged. Iterations: 17514
+    agent0 (1691 datas) -> Successfully converged. Iterations: 10303
+    agent1 (1803 datas) -> Successfully converged. Iterations: 13682
+    agent3 (2150 datas) -> Successfully converged. Iterations: 17923
+    agent2 (2035 datas) -> Successfully converged. Iterations: 33215
+
+roop 14
+    agent5 (1692 datas) -> Successfully converged. Iterations: 17893
+    agent4 (1916 datas) -> Successfully converged. Iterations: 17513
+    agent0 (1733 datas) -> Successfully converged. Iterations: 8832
+    agent1 (1905 datas) -> Successfully converged. Iterations: 17767
+    agent3 (2185 datas) -> Successfully converged. Iterations: 22053
+    agent2 (2069 datas) -> Successfully converged. Iterations: 75322
