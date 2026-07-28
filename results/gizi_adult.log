@@ -3,7 +3,7 @@ Roop 0: (3742, 100), (3742,)
 value -1: 1873 samples
 value 1: 1869 samples
 Successfully converged. Iterations: 21271
-fitting time : 9.21607756614685
+fitting time : 9.180401802062988
 objective_value: -1640.4359783371679
 SV_len: 73
 INNER_len: 1647
@@ -114,14 +114,14 @@ Y_pred: [ 1 -1  1  1 -1 -1  1  1  1  1  1 -1 -1 -1  1  1 -1  1  1  1  1  1 -1  1
 Accuracy: 82.16%
 F1: 83.05%
 
-make_fake_data time: 0.188441 sec
+make_fake_data time: 0.185295343399 sec
 
 Roop 1: (3742, 100), (3742,)
 
 value -1: 1873 samples
 value 1: 1869 samples
 Successfully converged. Iterations: 14203
-fitting time : 8.714750289916992
+fitting time : 8.73233437538147
 objective_value: -1640.4359847123462
 SV_len: 73
 INNER_len: 1647
@@ -233,10 +233,10 @@ Accuracy: 82.16%
 F1: 83.05%
 
 Y_pred_same(1): 100.00%
-RMSE(1): 0.000806
-MAE(1): 0.000588
-NRMSE_std(1): 0.000457
-NMAE_std(1): 0.000333
-pred [Max, Min]: [10.357164, -4.360007]
-cos(1): 0.999999
-angle(1): 0.058142 deg (0.001015 rad)
+RMSE(1): 0.000805780091
+MAE(1): 0.000587740613
+NRMSE_std(1): 0.000456592412
+NMAE_std(1): 0.000333041120
+pred [Max, Min]: [10.357164451999, -4.360006834166]
+cos(1): 0.999999485118
+angle(1): 0.058142205222 deg (0.001014772915 rad)
