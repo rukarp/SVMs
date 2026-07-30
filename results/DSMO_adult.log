@@ -10,7 +10,7 @@ low: 1873 samples, up: 1869samples
 0 (3742, 100) (3742,)
     agent0 (3742 datas) -> Successfully converged. Iterations: 18828
 
-fitting time : 8.040485382080078
+fitting time : 8.059947967529297
 
 Accuracy: 82.16%
 F1: 83.05%
@@ -22,22 +22,22 @@ Agent 0 low: 401 samples, up: 174 samples
 Agent 1 low: 363 samples, up: 212 samples
 Agent 2 low: 337 samples, up: 357 samples
 Agent 3 low: 312 samples, up: 362 samples
+
 Agent 4 low: 238 samples, up: 370 samples
 Agent 5 low: 222 samples, up: 394 samples
-
 18828 -> objective_value:-1640.43593407094, gap:-0.0009942203457180554
 
-t_E = 16.943147
-(t_E_1) = (0.475748)
+t_E = 3.507823
+(t_E_1) = (0.458487)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (16.419201)
-t_K = 1.558900
+(t_E_4) = (3.004420)
+t_K = 1.220125
 (t_K_1) = (0.000000)
-(t_K_2) = (0.428705)
-t_a = 4.014480
+(t_K_2) = (0.127012)
+t_a = 1.470036
 
-fitting time : 22.72075080871582
+fitting time : 6.3689186573028564
 
 Agent 0
 SV_len: 72
@@ -115,20 +115,20 @@ angle: 0.000001207418 deg (0.000000021073 rad)
 -------- Original Learning ----------
 0 (575, 100) (575,)
 1 (575, 100) (575,)
-4 (608, 100) (608,)
-5 (616, 100) (616,)
 3 (674, 100) (674,)
 2 (694, 100) (694,)
-    agent4 (608 datas) -> Successfully converged. Iterations: 280
-    agent0 (575 datas) -> Successfully converged. Iterations: 1515
+5 (616, 100) (616,)
+4 (608, 100) (608,)
     agent2 (694 datas) -> Successfully converged. Iterations: 156
+    agent4 (608 datas) -> Successfully converged. Iterations: 280
+    agent3 (674 datas) -> Successfully converged. Iterations: 466
+    agent0 (575 datas) -> Successfully converged. Iterations: 1515
     agent1 (575 datas) -> Successfully converged. Iterations: 1693
     agent5 (616 datas) -> Successfully converged. Iterations: 1844
-    agent3 (674 datas) -> Successfully converged. Iterations: 466
 
-fitting time : 0.223376274109
+fitting time : 0.134469032288
 
-make_fake_data time: 0.4440171718597412
+make_fake_data time: 0.1036672592163086
 
 ---------- Centralized Learning(Pseudo-Data) ----------
 low: 1873 samples, up: 1869samples
@@ -136,7 +136,7 @@ low: 1873 samples, up: 1869samples
 0 (3742, 100) (3742,)
     agent0 (3742 datas) -> Successfully converged. Iterations: 22730
 
-fitting time : 8.428292751312256
+fitting time : 8.221474409103394
 
 Accuracy: 81.09%
 F1: 81.96%
@@ -153,23 +153,23 @@ Agent 0 low: 401 samples, up: 174samples
 Agent 1 low: 363 samples, up: 212samples
 Agent 2 low: 337 samples, up: 357samples
 Agent 3 low: 312 samples, up: 362samples
-
 Agent 4 low: 238 samples, up: 370samples
 Agent 5 low: 222 samples, up: 394samples
+
 0 (575, 100) (575,)
 1 (575, 100) (575,)
-4 (608, 100) (608,)
-5 (616, 100) (616,)
 3 (674, 100) (674,)
 2 (694, 100) (694,)
+4 (608, 100) (608,)
+5 (616, 100) (616,)
+    agent2 (694 datas) -> Successfully converged. Iterations: 172
     agent4 (608 datas) -> Successfully converged. Iterations: 336
+    agent3 (674 datas) -> Successfully converged. Iterations: 569
     agent0 (575 datas) -> Successfully converged. Iterations: 1631
     agent5 (616 datas) -> Successfully converged. Iterations: 1373
     agent1 (575 datas) -> Successfully converged. Iterations: 1516
-    agent2 (694 datas) -> Successfully converged. Iterations: 172
-    agent3 (674 datas) -> Successfully converged. Iterations: 569
 
-fitting time : 0.2566871643066406
+fitting time : 0.12518858909606934
 
 
 ---------- Distributed Learning(Pseudo-Data)----------
@@ -177,20 +177,92 @@ Agent 0 low: 401 samples, up: 174samples
 Agent 1 low: 363 samples, up: 212samples
 Agent 2 low: 337 samples, up: 357samples
 Agent 3 low: 312 samples, up: 362samples
-
 Agent 4 low: 238 samples, up: 370samples
 Agent 5 low: 222 samples, up: 394samples
+
 22730 -> objective_value:-1640.2636247715716, gap:-0.0009667128052619489
 
-t_E = 19.495442
-(t_E_1) = (0.591583)
+t_E = 4.426316
+(t_E_1) = (0.566384)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (18.842747)
-t_K = 1.680326
+(t_E_4) = (3.803600)
+t_K = 1.267032
 (t_K_1) = (0.000000)
-(t_K_2) = (0.468384)
-t_a = 4.593389
+(t_K_2) = (0.137917)
+t_a = 1.795907
 
-fitting time : 26.029031991958618
+fitting time : 7.713009357452393
+
+Agent 0
+SV_len: 77
+INNER_len: 1637
+Accuracy: 81.09%
+F1: 81.96%
+SA: 98.72%
+NRMSE: 0.096810374990
+NMAE: 0.055177744015
+[MIN, MAX]: [-4.503159809245, 9.019317262143]
+cos: 0.934342282490
+angle: 20.877855388205 deg (0.364387317279 rad)
+
+Agent 1
+SV_len: 77
+INNER_len: 1637
+Accuracy: 81.09%
+F1: 81.96%
+SA: 98.72%
+NRMSE: 0.096810374990
+NMAE: 0.055177744015
+[MIN, MAX]: [-4.503159809245, 9.019317262143]
+cos: 0.934342282490
+angle: 20.877855388205 deg (0.364387317279 rad)
+
+Agent 2
+SV_len: 77
+INNER_len: 1637
+Accuracy: 81.09%
+F1: 81.96%
+SA: 98.72%
+NRMSE: 0.096810374990
+NMAE: 0.055177744015
+[MIN, MAX]: [-4.503159809245, 9.019317262143]
+cos: 0.934342282490
+angle: 20.877855388205 deg (0.364387317279 rad)
+
+Agent 3
+SV_len: 77
+INNER_len: 1637
+Accuracy: 81.09%
+F1: 81.96%
+SA: 98.72%
+NRMSE: 0.096810374990
+NMAE: 0.055177744015
+[MIN, MAX]: [-4.503159809245, 9.019317262143]
+cos: 0.934342282490
+angle: 20.877855388205 deg (0.364387317279 rad)
+
+Agent 4
+SV_len: 77
+INNER_len: 1637
+Accuracy: 81.09%
+F1: 81.96%
+SA: 98.72%
+NRMSE: 0.096810374990
+NMAE: 0.055177744015
+[MIN, MAX]: [-4.503159809245, 9.019317262143]
+cos: 0.934342282490
+angle: 20.877855388205 deg (0.364387317279 rad)
+
+Agent 5
+SV_len: 77
+INNER_len: 1637
+Accuracy: 81.09%
+F1: 81.96%
+SA: 98.72%
+NRMSE: 0.096810374990
+NMAE: 0.055177744015
+[MIN, MAX]: [-4.503159809245, 9.019317262143]
+cos: 0.934342282490
+angle: 20.877855388205 deg (0.364387317279 rad)
 
