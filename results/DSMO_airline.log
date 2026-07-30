@@ -10,7 +10,7 @@ low: 5869 samples, up: 4490samples
 0 (10359, 23) (10359,)
     agent0 (10359 datas) -> Successfully converged. Iterations: 20043
 
-fitting time : 39.83625793457031
+fitting time : 39.34732937812805
 
 Accuracy: 87.49%
 F1: 85.35%
@@ -22,22 +22,22 @@ Agent 0 low: 1333 samples, up: 404 samples
 Agent 1 low: 1310 samples, up: 654 samples
 Agent 2 low: 1283 samples, up: 718 samples
 Agent 3 low: 764 samples, up: 743 samples
-
 Agent 4 low: 645 samples, up: 980 samples
+
 Agent 5 low: 534 samples, up: 991 samples
 20043 -> objective_value:-3391.427246932978, gap:-0.000972422515005622
 
-t_E = 5.670146
-(t_E_1) = (0.675887)
+t_E = 12.526855
+(t_E_1) = (0.668300)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (4.889684)
-t_K = 6.638656
+(t_E_4) = (11.757175)
+t_K = 7.035639
 (t_K_1) = (0.000000)
-(t_K_2) = (0.316083)
-t_a = 1.994910
+(t_K_2) = (0.777108)
+t_a = 3.543679
 
-fitting time : 14.546035051345825
+fitting time : 23.334211111068726
 
 Agent 0
 SV_len: 27
@@ -73,11 +73,11 @@ NRMSE: 0.000000000003
 NMAE: 0.000000000003
 [MIN, MAX]: [-4.662675864141, 3.119656320552]
 cos: 1.000000000000
-angle: 0.000000000000 deg (0.000000000000 rad)
-
 Agent 3
 SV_len: 27
 INNER_len: 3390
+angle: 0.000000000000 deg (0.000000000000 rad)
+
 Accuracy: 87.49%
 F1: 85.35%
 SA: 100.00%
@@ -117,8 +117,8 @@ angle: 0.000000000000 deg (0.000000000000 rad)
 1 (1964, 23) (1964,)
 3 (1507, 23) (1507,)
 2 (2001, 23) (2001,)
-5 (1525, 23) (1525,)
 4 (1625, 23) (1625,)
+5 (1525, 23) (1525,)
     agent4 (1625 datas) -> Successfully converged. Iterations: 269
     agent0 (1737 datas) -> Successfully converged. Iterations: 201
     agent5 (1525 datas) -> Successfully converged. Iterations: 376
@@ -126,9 +126,9 @@ angle: 0.000000000000 deg (0.000000000000 rad)
     agent3 (1507 datas) -> Successfully converged. Iterations: 747
     agent1 (1964 datas) -> Successfully converged. Iterations: 4283
 
-fitting time : 1.112096786499
+fitting time : 1.083155870438
 
-make_fake_data time: 0.2542085647583008
+make_fake_data time: 0.2494654655456543
 
 ---------- Centralized Learning(Pseudo-Data) ----------
 low: 5869 samples, up: 4490samples
@@ -136,7 +136,7 @@ low: 5869 samples, up: 4490samples
 0 (10359, 23) (10359,)
     agent0 (10359 datas) -> Successfully converged. Iterations: 20732
 
-fitting time : 42.09005928039551
+fitting time : 40.28994083404541
 
 Accuracy: 87.41%
 F1: 85.25%
@@ -153,23 +153,23 @@ Agent 0 low: 1333 samples, up: 404samples
 Agent 1 low: 1310 samples, up: 654samples
 Agent 2 low: 1283 samples, up: 718samples
 Agent 3 low: 764 samples, up: 743samples
-
 Agent 4 low: 645 samples, up: 980samples
 Agent 5 low: 534 samples, up: 991samples
+
 0 (1737, 23) (1737,)
 1 (1964, 23) (1964,)
-4 (1625, 23) (1625,)
-5 (1525, 23) (1525,)
 3 (1507, 23) (1507,)
+4 (1625, 23) (1625,)
 2 (2001, 23) (2001,)
+5 (1525, 23) (1525,)
     agent4 (1625 datas) -> Successfully converged. Iterations: 187
     agent5 (1525 datas) -> Successfully converged. Iterations: 310
-    agent0 (1737 datas) -> Successfully converged. Iterations: 1200
     agent2 (2001 datas) -> Successfully converged. Iterations: 267
     agent3 (1507 datas) -> Successfully converged. Iterations: 403
+    agent0 (1737 datas) -> Successfully converged. Iterations: 1200
     agent1 (1964 datas) -> Successfully converged. Iterations: 8345
 
-fitting time : 1.3566653728485107
+fitting time : 1.3651835918426514
 
 
 ---------- Distributed Learning(Pseudo-Data)----------
@@ -177,22 +177,22 @@ Agent 0 low: 1333 samples, up: 404samples
 Agent 1 low: 1310 samples, up: 654samples
 Agent 2 low: 1283 samples, up: 718samples
 Agent 3 low: 764 samples, up: 743samples
-
 Agent 4 low: 645 samples, up: 980samples
 Agent 5 low: 534 samples, up: 991samples
+
 20732 -> objective_value:-3433.267360046773, gap:-0.0009832517378338679
 
-t_E = 23.349747
-(t_E_1) = (0.695197)
+t_E = 6.661295
+(t_E_1) = (0.677390)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (22.545340)
-t_K = 7.748751
+(t_E_4) = (5.879801)
+t_K = 6.837685
 (t_K_1) = (0.000000)
-(t_K_2) = (1.373118)
-t_a = 5.024392
+(t_K_2) = (0.341258)
+t_a = 2.281233
 
-fitting time : 36.41887927055359
+fitting time : 16.015356063842773
 
 Agent 0
 SV_len: 26
