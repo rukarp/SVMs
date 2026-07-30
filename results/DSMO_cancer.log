@@ -10,7 +10,7 @@ low: 170 samples, up: 285samples
 0 (455, 30) (455,)
     agent0 (455 datas) -> Successfully converged. Iterations: 138
 
-fitting time : 0.04000449180603027
+fitting time : 0.04009580612182617
 
 Accuracy: 99.12%
 F1: 99.30%
@@ -27,17 +27,17 @@ Agent 4 low: 8 samples, up: 61 samples
 Agent 5 low: 2 samples, up: 72 samples
 138 -> objective_value:-61.47898101375689, gap:-0.0007216762410626743
 
-t_E = 0.044291
-(t_E_1) = (0.002858)
+t_E = 0.029299
+(t_E_1) = (0.002859)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (0.041271)
-t_K = 0.010706
+(t_E_4) = (0.026288)
+t_K = 0.010922
 (t_K_1) = (0.000000)
-(t_K_2) = (0.005630)
-t_a = 0.008137
+(t_K_2) = (0.005725)
+t_a = 0.008625
 
-fitting time : 0.06469845771789551
+fitting time : 0.05054354667663574
 
 Agent 0
 SV_len: 7
@@ -115,8 +115,8 @@ angle: 0.000000000000 deg (0.000000000000 rad)
 -------- Original Learning ----------
 0 (59, 30) (59,)
 1 (76, 30) (76,)
-3 (94, 30) (94,)
 2 (83, 30) (83,)
+3 (94, 30) (94,)
 5 (74, 30) (74,)
 4 (69, 30) (69,)
     agent5 (74 datas) -> Successfully converged. Iterations: 28
@@ -126,9 +126,9 @@ angle: 0.000000000000 deg (0.000000000000 rad)
     agent1 (76 datas) -> Successfully converged. Iterations: 60
     agent2 (83 datas) -> Successfully converged. Iterations: 37
 
-fitting time : 0.005025863647
+fitting time : 0.004974126816
 
-make_fake_data time: 0.011646270751953125
+make_fake_data time: 0.011917591094970703
 
 ---------- Centralized Learning(Pseudo-Data) ----------
 low: 170 samples, up: 285samples
@@ -136,7 +136,7 @@ low: 170 samples, up: 285samples
 0 (455, 30) (455,)
     agent0 (455 datas) -> Successfully converged. Iterations: 159
 
-fitting time : 0.04116010665893555
+fitting time : 0.04158616065979004
 
 Accuracy: 99.12%
 F1: 99.30%
@@ -160,8 +160,8 @@ Agent 5 low: 2 samples, up: 72samples
 1 (76, 30) (76,)
 3 (94, 30) (94,)
 2 (83, 30) (83,)
-4 (69, 30) (69,)
 5 (74, 30) (74,)
+4 (69, 30) (69,)
     agent5 (74 datas) -> Successfully converged. Iterations: 26
     agent4 (69 datas) -> Successfully converged. Iterations: 23
     agent1 (76 datas) -> Successfully converged. Iterations: 44
@@ -169,7 +169,7 @@ Agent 5 low: 2 samples, up: 72samples
     agent3 (94 datas) -> Successfully converged. Iterations: 22
     agent2 (83 datas) -> Successfully converged. Iterations: 29
 
-fitting time : 0.004462718963623047
+fitting time : 0.004346370697021484
 
 
 ---------- Distributed Learning(Pseudo-Data)----------
@@ -177,22 +177,22 @@ Agent 0 low: 44 samples, up: 15samples
 Agent 1 low: 44 samples, up: 32samples
 Agent 2 low: 38 samples, up: 45samples
 Agent 3 low: 34 samples, up: 60samples
-Agent 4 low: 8 samples, up: 61samples
 
+Agent 4 low: 8 samples, up: 61samples
 Agent 5 low: 2 samples, up: 72samples
 159 -> objective_value:-59.41272053630121, gap:-0.000986114310744135
 
-t_E = 0.026351
-(t_E_1) = (0.003319)
+t_E = 0.027067
+(t_E_1) = (0.003338)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (0.022863)
-t_K = 0.010514
+(t_E_4) = (0.023553)
+t_K = 0.010862
 (t_K_1) = (0.000000)
-(t_K_2) = (0.005475)
-t_a = 0.007465
+(t_K_2) = (0.005667)
+t_a = 0.007655
 
-fitting time : 0.04602479934692383
+fitting time : 0.04743361473083496
 
 Agent 0
 SV_len: 9
