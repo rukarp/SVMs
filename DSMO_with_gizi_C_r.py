@@ -27,6 +27,9 @@ import data_cancer as ca
 import data_adult as ad
 import data_airline as ai
 
+# excel出力用
+from openpyxl import Workbook
+from openpyxl import load_workbook
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -109,8 +112,8 @@ def main():
     # --------------------------
 
     # ---------- adult ---------
-    #X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
-    #X_test, Y_test = ad.X_test, ad.Y_test
+    X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
+    X_test, Y_test = ad.X_test, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
@@ -142,7 +145,7 @@ def main():
     # --------------------------------------------------
     
     # --------------------------------------------------
-    C_list = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
+    C_list = [0.1, 1, 10, 100, 1000]
     r_list = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
     # --------------------------------------------------
 
@@ -168,11 +171,36 @@ def main():
         X_train, Y_train = None, None
     
     # -------------ループ用の変更点------------------------
-    X_train_ori, Y_train_ori = X_train, Y_train
+    # excel出力用
     if rank == 0:
-        print(f"1", flush=True)
+        sheet_names = [
+            "Accuracy",
+            "SA",
+            "NRMSE",
+            "cos",
+            "angle",
+            "b_error",
+        ]
+        wb = Workbook()
+
+        # 最初のSheetを削除
+        wb.remove(wb.active)
+
+        for name in sheet_names:
+            ws = wb.create_sheet(name)
+            ws.cell(row=1, column=1).value = "r/C"
+            # Cを書く
+            for j, C in enumerate(C_list):
+                ws.cell(row=1, column=j+2).value = C
+            # rを書く
+            for i, r in enumerate(r_list):
+                ws.cell(row=i+2, column=1).value = r
+        wb.save("result.xlsx")
+                    
+    X_train_ori, Y_train_ori = X_train, Y_train
+        
     # C, r の総当たりで実験
-    for C, in C_list:
+    for C in C_list:
         for r in r_list:
             mysvm.C = C
             radius = (r, r)
@@ -220,8 +248,6 @@ def main():
                 print(f'[MIN, MAX]: [{np.min(Y_pred_no_int):.12f}, {np.max(Y_pred_no_int):.12f}]\n', flush=True)
 
 
-                if plt == True:
-                    mysvm.plt_Data_and_Boundary_L("DSMO_plt_L_original")
 
             else:
                 Y_pred_no_int = None
@@ -261,9 +287,6 @@ def main():
             mysvm.grad_f_squared = mysvm.make_gradient_f_squared(mysvm.f, mysvm.grad_f)
             # ----------------------------------------------
             
-            if plt == True:
-                mysvm.plt_Data_and_Boundary_D("DSMO_plt_D_original_each")
-            comm.Barrier()
 
 
 
@@ -374,24 +397,33 @@ def main():
                     print('', flush=True)
                 
                 comm.Barrier()
-        
+                
             
-            # サポートベクター等の数を共有
-            ind_sv_len_list = comm.gather(len(mysvm.ind_sv), root=0)
-            ind_inner_len_list = comm.gather(len(mysvm.ind_inner), root=0)
             
-            # 各データについて確認
-            if rank == 0:        
-                # 目的関数の末尾の値の推移，データの個数の推移をプロット
-                mysvm.plt_Objective_Values("DSMO_plt_Objective_Values_pseudo")
-                mysvm.plt_Num_Samples("DSMO_plt_Num_Samples_pseudo")
+            
+            
+            # excel出力
+            if rank == 0:
+                wb = load_workbook("result.xlsx")
+
+                row = r_list.index(r) + 2
+                col = C_list.index(C) + 2
+
+                wb["Accuracy"].cell(row=row, column=col).value = accuracy
+                wb["SA"].cell(row=row, column=col).value = SA
+                wb["NRMSE"].cell(row=row, column=col).value = nrmse
+                wb["cos"].cell(row=row, column=col).value = cos_theta
+                wb["angle"].cell(row=row, column=col).value = theta_deg
+                wb["b_error"].cell(row=row, column=col).value = b_error
+
+                wb.save("result.xlsx")
             comm.Barrier()
-            
-            if plt == True:
-                mysvm.plt_Data_and_Boundary_D("DSMO_plt_D_pseudo")
+                
+        
+ 
 
             
             
 
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
