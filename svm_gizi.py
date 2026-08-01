@@ -70,6 +70,7 @@ def main():
     Y_pred = np.empty(OLL_roop, dtype=object)
     Y_pred_no_int = np.empty(OLL_roop, dtype=object)
     w_list = np.empty(OLL_roop, dtype=object)
+    b_list = np.empty(OLL_roop, dtype=object)
     
     # --- カーネルを指定してインスタンスを生成 ---
     mysvm = MySVM_g(kernel = 'linear', C = 1)#, tol = 1e-10)
@@ -164,7 +165,7 @@ def main():
         
         #wを保存
         w_list[i] = mysvm.w
-    
+        b_list[i] = mysvm.b
 
         """# 目的関数値の値を再計算 -------------
         L1, L2 = 0, 0
@@ -216,9 +217,12 @@ def main():
             theta = np.arccos(cos_theta)
             # 角度（度）
             theta_deg = np.degrees(theta)
+            # bの誤差
+            b_error = np.abs(b_list[0] - b_list[i])
 
             print(f"cos({i}): {cos_theta:.12f}")
             print(f"angle({i}): {theta_deg:.12f} deg ({theta:.12f} rad)")
+            print(f"b_error({i}): {b_error:.12f}")
 
         
 
