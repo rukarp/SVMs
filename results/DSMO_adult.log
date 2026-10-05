@@ -10,7 +10,7 @@ low: 1873 samples, up: 1869samples
 0 (3742, 100) (3742,)
     agent0 (3742 datas) -> Successfully converged. Iterations: 18828
 
-fitting time : 8.059947967529297
+fitting time : 7.9645514488220215
 
 Accuracy: 82.16%
 F1: 83.05%
@@ -27,17 +27,17 @@ Agent 4 low: 238 samples, up: 370 samples
 Agent 5 low: 222 samples, up: 394 samples
 18828 -> objective_value:-1640.43593407094, gap:-0.0009942203457180554
 
-t_E = 3.507823
-(t_E_1) = (0.458487)
+t_E = 3.076705
+(t_E_1) = (0.448834)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (3.004420)
-t_K = 1.220125
+(t_E_4) = (2.584518)
+t_K = 1.204875
 (t_K_1) = (0.000000)
-(t_K_2) = (0.127012)
-t_a = 1.470036
+(t_K_2) = (0.121290)
+t_a = 1.241210
 
-fitting time : 6.3689186573028564
+fitting time : 5.6838648319244385
 
 Agent 0
 SV_len: 72
@@ -49,7 +49,7 @@ NRMSE: 0.000000000008
 NMAE: 0.000000000008
 [MIN, MAX]: [-4.363801530638, 10.353268071329]
 cos: 1.000000000000
-angle: 0.000001207418 deg (0.000000021073 rad)
+angle: 0.000000853774 deg (0.000000014901 rad)
 
 Agent 1
 SV_len: 72
@@ -61,7 +61,7 @@ NRMSE: 0.000000000008
 NMAE: 0.000000000008
 [MIN, MAX]: [-4.363801530638, 10.353268071329]
 cos: 1.000000000000
-angle: 0.000001207418 deg (0.000000021073 rad)
+angle: 0.000000853774 deg (0.000000014901 rad)
 
 Agent 2
 SV_len: 72
@@ -73,7 +73,7 @@ NRMSE: 0.000000000008
 NMAE: 0.000000000008
 [MIN, MAX]: [-4.363801530638, 10.353268071329]
 cos: 1.000000000000
-angle: 0.000001207418 deg (0.000000021073 rad)
+angle: 0.000000853774 deg (0.000000014901 rad)
 
 Agent 3
 SV_len: 72
@@ -85,7 +85,7 @@ NRMSE: 0.000000000008
 NMAE: 0.000000000008
 [MIN, MAX]: [-4.363801530638, 10.353268071329]
 cos: 1.000000000000
-angle: 0.000001207418 deg (0.000000021073 rad)
+angle: 0.000000853774 deg (0.000000014901 rad)
 
 Agent 4
 SV_len: 72
@@ -97,7 +97,7 @@ NRMSE: 0.000000000008
 NMAE: 0.000000000008
 [MIN, MAX]: [-4.363801530638, 10.353268071329]
 cos: 1.000000000000
-angle: 0.000001207418 deg (0.000000021073 rad)
+angle: 0.000000853774 deg (0.000000014901 rad)
 
 Agent 5
 SV_len: 72
@@ -109,7 +109,7 @@ NRMSE: 0.000000000008
 NMAE: 0.000000000008
 [MIN, MAX]: [-4.363801530638, 10.353268071329]
 cos: 1.000000000000
-angle: 0.000001207418 deg (0.000000021073 rad)
+angle: 0.000000853774 deg (0.000000014901 rad)
 
 
 -------- Original Learning ----------
@@ -126,26 +126,33 @@ angle: 0.000001207418 deg (0.000000021073 rad)
     agent1 (575 datas) -> Successfully converged. Iterations: 1693
     agent5 (616 datas) -> Successfully converged. Iterations: 1844
 
-fitting time : 0.134469032288
+fitting time : 0.148398160934
 
-make_fake_data time: 0.1036672592163086
+Agent 0: SV_len -> 47, INNER_len -> 27
+Agent 1: SV_len -> 45, INNER_len -> 58
+Agent 2: SV_len -> 18, INNER_len -> 1
+Agent 3: SV_len -> 26, INNER_len -> 2
+Agent 4: SV_len -> 27, INNER_len -> 22
+Agent 5: SV_len -> 43, INNER_len -> 119
+make_fake_data time: 0.03592038154602051
+Average d_move: 0.14991479907838248
 
 ---------- Centralized Learning(Pseudo-Data) ----------
 low: 1873 samples, up: 1869samples
 
 0 (3742, 100) (3742,)
-    agent0 (3742 datas) -> Successfully converged. Iterations: 22730
+    agent0 (3742 datas) -> Successfully converged. Iterations: 15580
 
-fitting time : 8.221474409103394
+fitting time : 7.95296835899353
 
-Accuracy: 81.09%
-F1: 81.96%
-SA: 98.72%
-NRMSE: 0.096810374990
-NMAE: 0.055177744016
-[MIN, MAX]: [-4.503159809253, 9.019317262135]
-cos: 0.934342282490
-angle: 20.877855388205 deg (0.364387317279 rad)
+Accuracy: 81.30%
+F1: 82.12%
+SA: 98.29%
+NRMSE: 0.123842301490
+NMAE: 0.058559669567
+[MIN, MAX]: [-4.894695746731, 8.370521096352]
+cos: 0.942626169728
+angle: 19.502629642217 deg (0.340385100054 rad)
 
 
 ---------- Original Learning(Pseudo-Data) ----------
@@ -153,23 +160,23 @@ Agent 0 low: 401 samples, up: 174samples
 Agent 1 low: 363 samples, up: 212samples
 Agent 2 low: 337 samples, up: 357samples
 Agent 3 low: 312 samples, up: 362samples
+
 Agent 4 low: 238 samples, up: 370samples
 Agent 5 low: 222 samples, up: 394samples
-
 0 (575, 100) (575,)
 1 (575, 100) (575,)
 3 (674, 100) (674,)
 2 (694, 100) (694,)
 4 (608, 100) (608,)
 5 (616, 100) (616,)
-    agent2 (694 datas) -> Successfully converged. Iterations: 172
-    agent4 (608 datas) -> Successfully converged. Iterations: 336
-    agent3 (674 datas) -> Successfully converged. Iterations: 569
-    agent0 (575 datas) -> Successfully converged. Iterations: 1631
-    agent5 (616 datas) -> Successfully converged. Iterations: 1373
-    agent1 (575 datas) -> Successfully converged. Iterations: 1516
+    agent2 (694 datas) -> Successfully converged. Iterations: 371
+    agent4 (608 datas) -> Successfully converged. Iterations: 377
+    agent3 (674 datas) -> Successfully converged. Iterations: 432
+    agent0 (575 datas) -> Successfully converged. Iterations: 1845
+    agent1 (575 datas) -> Successfully converged. Iterations: 3232
+    agent5 (616 datas) -> Successfully converged. Iterations: 3828
 
-fitting time : 0.12518858909606934
+fitting time : 0.20165634155273438
 
 
 ---------- Distributed Learning(Pseudo-Data)----------
@@ -177,92 +184,92 @@ Agent 0 low: 401 samples, up: 174samples
 Agent 1 low: 363 samples, up: 212samples
 Agent 2 low: 337 samples, up: 357samples
 Agent 3 low: 312 samples, up: 362samples
+
 Agent 4 low: 238 samples, up: 370samples
 Agent 5 low: 222 samples, up: 394samples
+15580 -> objective_value:-1653.214001146018, gap:-0.0009955745666445637
 
-22730 -> objective_value:-1640.2636247715716, gap:-0.0009667128052619489
-
-t_E = 4.426316
-(t_E_1) = (0.566384)
+t_E = 2.900136
+(t_E_1) = (0.384593)
 (t_E_2) = (0.000000)
 (t_E_3) = (0.000000)
-(t_E_4) = (3.803600)
-t_K = 1.267032
+(t_E_4) = (2.478084)
+t_K = 1.237875
 (t_K_1) = (0.000000)
-(t_K_2) = (0.137917)
-t_a = 1.795907
+(t_K_2) = (0.136248)
+t_a = 0.953819
 
-fitting time : 7.713009357452393
+fitting time : 5.21988582611084
 
 Agent 0
-SV_len: 77
-INNER_len: 1637
-Accuracy: 81.09%
-F1: 81.96%
-SA: 98.72%
-NRMSE: 0.096810374990
-NMAE: 0.055177744015
-[MIN, MAX]: [-4.503159809245, 9.019317262143]
-cos: 0.934342282490
-angle: 20.877855388205 deg (0.364387317279 rad)
+SV_len: 71
+INNER_len: 1645
+Accuracy: 81.30%
+F1: 82.12%
+SA: 98.29%
+NRMSE: 0.123842301490
+NMAE: 0.058559669567
+[MIN, MAX]: [-4.894695746737, 8.370521096346]
+cos: 0.942626169728
+angle: 19.502629642223 deg (0.340385100054 rad)
 
 Agent 1
-SV_len: 77
-INNER_len: 1637
-Accuracy: 81.09%
-F1: 81.96%
-SA: 98.72%
-NRMSE: 0.096810374990
-NMAE: 0.055177744015
-[MIN, MAX]: [-4.503159809245, 9.019317262143]
-cos: 0.934342282490
-angle: 20.877855388205 deg (0.364387317279 rad)
+SV_len: 71
+INNER_len: 1645
+Accuracy: 81.30%
+F1: 82.12%
+SA: 98.29%
+NRMSE: 0.123842301490
+NMAE: 0.058559669567
+[MIN, MAX]: [-4.894695746737, 8.370521096346]
+cos: 0.942626169728
+angle: 19.502629642223 deg (0.340385100054 rad)
 
 Agent 2
-SV_len: 77
-INNER_len: 1637
-Accuracy: 81.09%
-F1: 81.96%
-SA: 98.72%
-NRMSE: 0.096810374990
-NMAE: 0.055177744015
-[MIN, MAX]: [-4.503159809245, 9.019317262143]
-cos: 0.934342282490
-angle: 20.877855388205 deg (0.364387317279 rad)
+SV_len: 71
+INNER_len: 1645
+Accuracy: 81.30%
+F1: 82.12%
+SA: 98.29%
+NRMSE: 0.123842301490
+NMAE: 0.058559669567
+[MIN, MAX]: [-4.894695746737, 8.370521096346]
+cos: 0.942626169728
+angle: 19.502629642223 deg (0.340385100054 rad)
 
 Agent 3
-SV_len: 77
-INNER_len: 1637
-Accuracy: 81.09%
-F1: 81.96%
-SA: 98.72%
-NRMSE: 0.096810374990
-NMAE: 0.055177744015
-[MIN, MAX]: [-4.503159809245, 9.019317262143]
-cos: 0.934342282490
-angle: 20.877855388205 deg (0.364387317279 rad)
+SV_len: 71
+INNER_len: 1645
+Accuracy: 81.30%
+F1: 82.12%
+SA: 98.29%
+NRMSE: 0.123842301490
+NMAE: 0.058559669567
+[MIN, MAX]: [-4.894695746737, 8.370521096346]
+cos: 0.942626169728
+angle: 19.502629642223 deg (0.340385100054 rad)
 
 Agent 4
-SV_len: 77
-INNER_len: 1637
-Accuracy: 81.09%
-F1: 81.96%
-SA: 98.72%
-NRMSE: 0.096810374990
-NMAE: 0.055177744015
-[MIN, MAX]: [-4.503159809245, 9.019317262143]
-cos: 0.934342282490
-angle: 20.877855388205 deg (0.364387317279 rad)
+SV_len: 71
+INNER_len: 1645
+Accuracy: 81.30%
+F1: 82.12%
+SA: 98.29%
+NRMSE: 0.123842301490
+NMAE: 0.058559669567
+[MIN, MAX]: [-4.894695746737, 8.370521096346]
+cos: 0.942626169728
+angle: 19.502629642223 deg (0.340385100054 rad)
 
 Agent 5
-SV_len: 77
-INNER_len: 1637
-Accuracy: 81.09%
-F1: 81.96%
-SA: 98.72%
-NRMSE: 0.096810374990
-NMAE: 0.055177744015
-[MIN, MAX]: [-4.503159809245, 9.019317262143]
-cos: 0.934342282490
-angle: 20.877855388205 deg (0.364387317279 rad)
+SV_len: 71
+INNER_len: 1645
+Accuracy: 81.30%
+F1: 82.12%
+SA: 98.29%
+NRMSE: 0.123842301490
+NMAE: 0.058559669567
+[MIN, MAX]: [-4.894695746737, 8.370521096346]
+cos: 0.942626169728
+angle: 19.502629642223 deg (0.340385100054 rad)
 
