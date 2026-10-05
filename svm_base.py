@@ -505,12 +505,16 @@ class BaseSVM:
         plt.scatter(self.X[self.ind_sv, 0], self.X[self.ind_sv, 1], s=100, facecolors='none', edgecolors='k', label='Support Vectors')        
         plt.scatter(self.X[self.ind_inner, 0], self.X[self.ind_inner, 1], s=100, facecolors='none', edgecolors='k', marker='^', label='Margin-Violating Samples')
         
+        # 描画範囲を指定
+        plt.xlim(x_range)
+        plt.ylim(y_range)
+        
         plt.colorbar(cf)
         plt.xlabel('X1')
         plt.ylabel('X2')
         #plt.xlabel('petal length (cm)')
         #plt.ylabel('petal width (cm)')
-        plt.legend#(fontsize=9)
+        plt.legend(fontsize=9)
 
         plt.rcParams['pdf.fonttype'] = 42
         plt.rcParams['ps.fonttype'] = 42

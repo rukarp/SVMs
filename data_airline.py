@@ -149,12 +149,21 @@ print(len(X_train_1[labels_1 == 3]))
 print(len(X_train_1[labels_1 == 4]))
 print(len(X_train_1[labels_1 == 5]))"""
 
+"""
 X6_51_train, Y6_51_train = np.concatenate((X_train_0[labels_0 == 2], X_train_1[labels_1 == 0])), np.concatenate((Y_train_0[labels_0 == 2], Y_train_1[labels_1 == 0]))
 X6_52_train, Y6_52_train = np.concatenate((X_train_0[labels_0 == 3], X_train_1[labels_1 == 5])), np.concatenate((Y_train_0[labels_0 == 3], Y_train_1[labels_1 == 5]))
 X6_53_train, Y6_53_train = np.concatenate((X_train_0[labels_0 == 5], X_train_1[labels_1 == 1])), np.concatenate((Y_train_0[labels_0 == 5], Y_train_1[labels_1 == 1]))
 X6_54_train, Y6_54_train = np.concatenate((X_train_0[labels_0 == 0], X_train_1[labels_1 == 2])), np.concatenate((Y_train_0[labels_0 == 0], Y_train_1[labels_1 == 2]))
 X6_55_train, Y6_55_train = np.concatenate((X_train_0[labels_0 == 4], X_train_1[labels_1 == 4])), np.concatenate((Y_train_0[labels_0 == 4], Y_train_1[labels_1 == 4]))
 X6_56_train, Y6_56_train = np.concatenate((X_train_0[labels_0 == 1], X_train_1[labels_1 == 3])), np.concatenate((Y_train_0[labels_0 == 1], Y_train_1[labels_1 == 3]))
+"""
+
+X6_51_train, Y6_51_train = np.concatenate((X_train_0[labels_0 == 2], X_train_1[labels_1 == 1])), np.concatenate((Y_train_0[labels_0 == 2], Y_train_1[labels_1 == 1]))
+X6_52_train, Y6_52_train = np.concatenate((X_train_0[labels_0 == 3], X_train_1[labels_1 == 2])), np.concatenate((Y_train_0[labels_0 == 3], Y_train_1[labels_1 == 2]))
+X6_53_train, Y6_53_train = np.concatenate((X_train_0[labels_0 == 5], X_train_1[labels_1 == 4])), np.concatenate((Y_train_0[labels_0 == 5], Y_train_1[labels_1 == 4]))
+X6_54_train, Y6_54_train = np.concatenate((X_train_0[labels_0 == 0], X_train_1[labels_1 == 3])), np.concatenate((Y_train_0[labels_0 == 0], Y_train_1[labels_1 == 3]))
+X6_55_train, Y6_55_train = np.concatenate((X_train_0[labels_0 == 4], X_train_1[labels_1 == 0])), np.concatenate((Y_train_0[labels_0 == 4], Y_train_1[labels_1 == 0]))
+X6_56_train, Y6_56_train = np.concatenate((X_train_0[labels_0 == 1], X_train_1[labels_1 == 5])), np.concatenate((Y_train_0[labels_0 == 1], Y_train_1[labels_1 == 5]))
 
 X6_5_train = [X6_51_train, X6_52_train, X6_53_train, X6_54_train, X6_55_train, X6_56_train]
 Y6_5_train = [Y6_51_train, Y6_52_train, Y6_53_train, Y6_54_train, Y6_55_train, Y6_56_train]
@@ -163,4 +172,5 @@ Y6_5_train = [Y6_51_train, Y6_52_train, Y6_53_train, Y6_54_train, Y6_55_train, Y
 #print(Y6_51_train.shape, Y6_52_train.shape, Y6_53_train.shape, Y6_54_train.shape, Y6_55_train.shape, Y6_56_train.shape)
 
 # X6_5m_train.shape -> (1737, 23) (1964, 23) (2001, 23) (1507, 23) (1625, 23) (1525, 23)
+# X6_5m_train.shape -> (2051, 23) (2053, 23) (2263, 23) (1755, 23) (1049, 23) (1188, 23)
 # --------------------------------

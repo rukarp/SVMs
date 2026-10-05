@@ -61,10 +61,14 @@ class MySVM(BaseDSMO_for_Gizi):
 
         return SA, nrmse, nmae, np.max(Y_pred_no_int), np.min(Y_pred_no_int)    
     
-    def calculate_w_cos_and_b_error(self, w_ori, w, b_ori, b):
+    def calculate_w_cos(self, w_ori, w, b_ori, b):
+        
+        # 拡張ベクトル (w, b)^T
+        w_ori_ext = np.append(w_ori, b_ori)
+        w_ext = np.append(w, b)
 
         # コサイン類似度
-        cos_theta = np.dot(w_ori, w) / (np.linalg.norm(w_ori) * np.linalg.norm(w))
+        cos_theta = np.dot(w_ori_ext, w_ext) / (np.linalg.norm(w_ori_ext) * np.linalg.norm(w_ext))
 
         # 丸め誤差対策
         cos_theta = np.clip(cos_theta, -1.0, 1.0)
@@ -74,11 +78,8 @@ class MySVM(BaseDSMO_for_Gizi):
 
         # 角度（度）
         theta_deg = np.degrees(theta)
-        
-        # bの誤差を計算
-        b_error = np.abs(b_ori - b)
 
-        return cos_theta, theta, theta_deg, b_error
+        return cos_theta, theta, theta_deg
 
 
 
@@ -95,7 +96,7 @@ def main():
     # MPIのrankとhostを表示する
     for i in range(size):
         if rank == i:
-            print(f"rank={rank}, host={host}")
+            print(f"rank={rank}, host={host}", flush=True)
         comm.Barrier()
     
     # ---------- iris ----------
@@ -126,7 +127,7 @@ def main():
     #kernel = 'rbf'
     #kernel = 'sigmoid'
     
-    C = 1
+    C = 10**(0)
     gamma = 1
     
     degree = 2
@@ -137,9 +138,7 @@ def main():
     # -----------------------------------------
     
     # ----- ノイズの半径の範囲を指定 (最小値, 最大値) -----
-    radius = (0.05, 0.1)
     radius = (0.1, 0.2)
-    #radius = (0.25, 0.5)
     # --------------------------------------------------
 
     # --- カーネルを指定してインスタンスを生成 ---
@@ -151,6 +150,8 @@ def main():
         mysvm = MySVM(kernel = 'rbf', gamma = gamma, C = C)
     elif kernel == 'sigmoid':
         mysvm = MySVM(kernel = 'sigmoid', gamma = gamma, coef0 = coef0, C = C)
+    mysvm.max_iterations = 1000000
+    #mysvm.tol = 1e-3
     # -----------------------------------------
 
 
@@ -256,7 +257,7 @@ def main():
     f1 = f1_score(Y_pred, Y_test)
     SA, nrmse, nmae, max_f, min_f = mysvm.calculate_SV_RMSE(Y_pred_ori_no_int, Y_pred_no_int)
     if mysvm.kernel == "linear":
-        cos_theta, theta, theta_deg, b_error = mysvm.calculate_w_cos_and_b_error(w_ori, mysvm.w, b_ori, mysvm.b)
+        cos_theta, theta, theta_deg = mysvm.calculate_w_cos(w_ori, mysvm.w, b_ori, mysvm.b)
 
     # 目的関数値の値を再計算 -------------
     L1, L2 = 0, 0
@@ -295,7 +296,7 @@ def main():
             if mysvm.kernel == "linear":
                 print(f'cos: {cos_theta:.12f}', flush=True)
                 print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
-                print(f'b_error: {b_error:.12f}', flush=True)
+                #print(f'b_error: {b_error:.12f}', flush=True)
             print('', flush=True)
         
         comm.Barrier()
@@ -341,6 +342,11 @@ def main():
     mysvm.grad_f_squared = mysvm.make_gradient_f_squared(mysvm.f, mysvm.grad_f)
     # ----------------------------------------------
     
+    for i in range(size):
+        if rank == i:
+            print(f'Agent {i}: SV_len -> {len(mysvm.ind_sv)}, INNER_len -> {len(mysvm.ind_inner)}', flush=True)
+        comm.Barrier()
+    
     if plt == True:
         mysvm.plt_Data_and_Boundary_D("DSMO_plt_D_original_each")
     comm.Barrier()
@@ -353,20 +359,24 @@ def main():
     if rank == 0:
         start = time.time()
         
-        
-        
+    d_move = 0
+    
     comm.Barrier()
     #X_train, Y_train = mysvm.make_fake_data(X_train, mysvm.ind_sv, lr = 0.01, max_iter=1000)
     #X_train, Y_train = mysvm.make_fake_data_random(X_train, Y_train, radius = radius, max_retry = 10000)
     #X_train, Y_train = mysvm.make_fake_data_random_with_margin(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
-    X_train, Y_train = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+    #X_train, Y_train, d_move = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+    X_train, Y_train, d_move = mysvm.make_fake_data_KKT_QP(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
     comm.Barrier()
     
-    
+    d_move_sum = comm.reduce(d_move, op=MPI.SUM, root=0)
     
     if rank == 0:
-       end = time.time()
-       print(f"make_fake_data time: {end - start}", flush=True)
+        end = time.time()
+        print(f"make_fake_data time: {end - start}", flush=True)
+       
+        d_move_avg = d_move_sum / size
+        print(f"Average d_move: {d_move_avg}", flush=True)
     comm.Barrier()
 
     # ----------------------
@@ -403,7 +413,7 @@ def main():
         
         SA, nrmse, nmae, max_f, min_f = mysvm.calculate_SV_RMSE(Y_pred_ori_no_int, Y_pred_no_int)
         if mysvm.kernel == "linear":
-            cos_theta, theta, theta_deg, b_error = mysvm.calculate_w_cos_and_b_error(w_ori, mysvm.w, b_ori, mysvm.b)
+            cos_theta, theta, theta_deg = mysvm.calculate_w_cos(w_ori, mysvm.w, b_ori, mysvm.b)
 
         print(f'SA: {SA* 100:.2f}%', flush=True)
         print(f'NRMSE: {nrmse:.12f}', flush=True)
@@ -412,7 +422,7 @@ def main():
         if mysvm.kernel == "linear":
             print(f'cos: {cos_theta:.12f}', flush=True)
             print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
-            print(f'b_error: {b_error:.12f}', flush=True)
+            #print(f'b_error: {b_error:.12f}', flush=True)
         print('', flush=True)
             
         if plt == True:
@@ -513,7 +523,7 @@ def main():
     f1 = f1_score(Y_pred, Y_test)
     SA, nrmse, nmae, max_f, min_f = mysvm.calculate_SV_RMSE(Y_pred_ori_no_int, Y_pred_no_int)
     if mysvm.kernel == "linear":
-        cos_theta, theta, theta_deg, b_error = mysvm.calculate_w_cos_and_b_error(w_ori, mysvm.w, b_ori, mysvm.b)
+        cos_theta, theta, theta_deg = mysvm.calculate_w_cos(w_ori, mysvm.w, b_ori, mysvm.b)
 
     # 目的関数値の値を再計算 -------------
     L1, L2 = 0, 0
@@ -552,7 +562,7 @@ def main():
             if mysvm.kernel == "linear":
                 print(f'cos: {cos_theta:.12f}', flush=True)
                 print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
-                print(f'b_error: {b_error:.12f}', flush=True)
+                #print(f'b_error: {b_error:.12f}', flush=True)
             print('', flush=True)
         
         comm.Barrier()

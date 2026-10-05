@@ -20,6 +20,9 @@ from scipy.spatial import ConvexHull
 # 直交行列生成用
 from scipy.linalg import orth
 
+# 凸最適化用
+import cvxpy as cp
+
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
@@ -805,8 +808,8 @@ class BaseDSMO_for_Gizi(BaseDSMO):
         #print(f"Support Vectors: {ind_sv}")
         #print(f"Inner Points: {ind_inner}")
         
-        X_delta = np.zeros_like(X)
         X_new = np.zeros_like(X)
+        X_delta = np.zeros_like(X)
         
         # X_deltaの補正に用いるΣα_i^2の計算
         denom = np.dot(alphas, alphas)
@@ -822,22 +825,25 @@ class BaseDSMO_for_Gizi(BaseDSMO):
         # マージンの条件ごとの各種設定
         configs = [
             {
+                "name": "other",
                 "ind": ind_other,
                 "noise_func": self.generate_directional_noise,
                 "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                "margin_cond": lambda i: y[i] * self.f(X_new[i]) > 1,
+                "margin_cond": lambda i: y[i] * self.f(X_new[i]) > 1,# + self.ME,
             },
             {
+                "name": "support_vector",
                 "ind": ind_sv,
                 "noise_func": self.generate_tangent_noise,
                 "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
                 "margin_cond": lambda i: abs(self.f(X[i]) - self.f(X_new[i])) < self.ME,
             },
             {
+                "name": "inner",
                 "ind": ind_inner,
                 "noise_func": self.generate_directional_noise,
                 "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                "margin_cond": lambda i: y[i] * self.f(X_new[i]) < 1,
+                "margin_cond": lambda i: y[i] * self.f(X_new[i]) < 1,# - self.ME,
             },
         ]
             
@@ -845,57 +851,561 @@ class BaseDSMO_for_Gizi(BaseDSMO):
         
         while not np.all(flag):
             
-            # False の点だけ再生成
-            for cfg in configs:
-               for i in cfg["ind"][~flag[cfg["ind"]]]:
-                for retry in range(max_retry):
-                    X_delta[i] = cfg["noise_func"](dim, radius, seed=i * 100000 + iter * 1000 + retry)
-                    X_new[i] = X[i] + X_delta[i]
-                    
-                    cond_p_area = cfg["area_cond"](i)
-                    cond_p_margin = cfg["margin_cond"](i)
-                    
-                    #if cond_p_area and cond_p_margin:
-                    if cond_p_margin:
-                        flag[i] = True
-                        break
-                
-                # 失敗時のメッセージ
-                if not flag[i]:
-                    print(f"Retry failed for index {i}.")
+            print(f"Agent {comm.Get_rank()} Iteration {iter}: radius: ({radius[0]}, {radius[1]}), {np.sum(flag)} / {len(X)} points satisfied the conditions.", flush=True)
+            print(f"        False deta -> other: {np.sum(~flag[ind_other])}, sv: {np.sum(~flag[ind_sv])}, inner: {np.sum(~flag[ind_inner])}", flush=True)
             
-            # 全体補正            
+            # (1) 全点について候補ノイズを生成
+            for cfg in configs:
+                for i in cfg["ind"][~flag[cfg["ind"]]]:
+                    for retry in range(max_retry):
+                        X_delta[i] = cfg["noise_func"](dim, radius, seed=i * 100000 + iter * 1000 + retry)
+                        X_new[i] = X[i] + X_delta[i]
+                        
+                        cond_i_area = cfg["area_cond"](i)
+                        cond_i_margin = cfg["margin_cond"](i)
+                        
+                        #if cond_i_area and cond_i_margin:
+                        if cond_i_margin:
+                            flag[i] = True
+                            break
+                
+                    # 失敗時のメッセージ
+                    if not flag[i]:
+                        print(f"Retry failed for index {i} in '{cfg['name']}' category.", flush=True)
+            
+            # (2) 候補ノイズ全体に補正           
             w_delta = X_delta.T @ coef
             X_delta -= np.outer(coef, w_delta) / denom
             
             # 補正後に再チェック
             X_new = X + X_delta
             
-            #cond_margin_other = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other])
-            cond_margin_sv = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv])
-            cond_margin_inner = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner])
-
-            # マージンの条件をflagに反映
-            #flag[ind_other] = cond_margin_other
+            # (3) 補正後の条件をチェック
+            cond_margin_other = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other], dtype=bool)
+            cond_margin_sv = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv], dtype=bool)
+            cond_margin_inner = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner], dtype=bool)
+            
+            flag[ind_other] = cond_margin_other
             flag[ind_sv] = cond_margin_sv
             flag[ind_inner] = cond_margin_inner
             
             # エリアの違反があればFlaseにする．
             #cond_area = np.all((X_new >= 0) & (X_new <= 1), axis=1)
             #flag &= cond_area
-        
+
+            #radius = tuple(r * 0.999 for r in radius)
             iter += 1
+                        
+        # 元データからの平均移動距離
+        d_move = np.mean(np.linalg.norm(X_new - X, axis=1))
             
-        return X_new, y.copy()
+        return X_new, y.copy(), d_move
     
+    
+    
+    
+    
+    def make_fake_data_KKT_QP(self, X, y, alphas, radius, max_retry, seed = 42):
+        """
+        KKT条件から動かす条件を決めてノイズを加える方法
+        （linearカーネル限定）
+        wに平行な成分のノイズを決めてからwに垂直な成分のノイズを加える
+        Args:
+            X (_type_): _description_
+            y (_type_): _description_
+            alphas (_type_): _description_
+            radius (_type_): _description_
+            max_retry (_type_): _description_
+            seed (_type_, optional): _description_. Defaults to 42.
 
+        Returns:
+            _type_: _description_
+        """
 
+        ind_sv, ind_inner = self._get_SV_ind(alphas)
+        ind_other = np.setdiff1d(np.arange(len(alphas)), np.concatenate([ind_sv, ind_inner]))
 
+        ind_corr = np.concatenate([ind_sv, ind_inner])
+
+        #if len(ind_inner) > 0:
+        #    print(f"innerのalpha平均: {np.mean(alphas[ind_inner]):.15f}")
+        
+        X_delta = np.zeros_like(X)
+        X_delta_parallel = np.zeros_like(X)
+        X_delta_perp = np.zeros_like(X)
+    
+        # Xの次元数を取得
+        N, dim = X.shape
+        
+        # すべての点のフラグを初期化
+        flag = np.full(N, False, dtype=bool)
+        
+        # シード値を固定して再現性を確保
+        np.random.seed(seed)
+        
+        # randomな半径を生成
+        r = np.random.uniform(radius[0], radius[1], size=N)
+        
+        """#補正後の条件をチェック
+        X_new = X + X_delta + X_delta_parallel + X_delta_perp
+        flag[ind_other] = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other], dtype=bool)
+        flag[ind_sv] = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv], dtype=bool)
+        flag[ind_inner] = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner], dtype=bool)
+        
+        # 一つでも条件を満たさない点があれば警告
+        if not np.all(flag):
+            print(f"Agent{rank}, ORIGINAL Warning: Not all points satisfy the conditions after noise addition.", flush=True)
+            print(f"        Agent{rank}, False deta -> other: {np.sum(~flag[ind_other])}, sv: {np.sum(~flag[ind_sv])}, inner: {np.sum(~flag[ind_inner])}", flush=True)
+            
+            for i in ind_inner:
+                f_val = self.f(X_new[i])
+                if y[i] * f_val >= 1:
+                    print(f"Agent{rank}, i={i}, f={f_val:.15f}, y*f={y[i] * f_val:.15f}, d={y[i] * (1.0 - y[i] * self.f(X_new[i])) / np.linalg.norm(self.w):.15f}")"""
+
+        # otherのノイズを作成 ----------------------------------
+        for i in ind_other:
+            for retry in range(max_retry):
+                current_seed = np.random.SeedSequence([seed, i, retry])
+                X_delta[i] = self.generate_directional_noise(dim, (r[i], r[i]), seed=current_seed)
+                                
+                if y[i] * self.f(X[i] + X_delta[i]) > 1:
+                    flag[i] = True
+                    break
+            
+            # 失敗時のメッセージ
+            if not flag[i]:
+                print(f"Retry failed for index {i} in 'other' category.", flush=True)
+        # -----------------------------------------------------------------------
+        
+        # w方向のノイズを作成 -----------------------------------------------------
+        if len(ind_inner) > 0:
+            s_inner = np.random.choice([-1, 1], size=len(X[ind_inner]))
+            lambda_inner_0 = self.generate_lambda_sub_0(X[ind_inner], y[ind_inner], r[ind_inner], s_inner, ind_inner)
+            lambda_inner = self.optimize_lambda(lambda_inner_0, X[ind_inner], y[ind_inner], alphas[ind_inner], r[ind_inner])
+            
+            # w方向のΔxを作成
+            w_unit = self.w / np.linalg.norm(self.w)
+            X_delta_parallel[ind_inner] = lambda_inner[:, np.newaxis] * w_unit
+            
+            """print(f"Agent{rank}, lambda min:", np.min(lambda_inner), flush=True)
+            print(f"Agent{rank}, lambda max:", np.max(lambda_inner), flush=True)
+            print(f"Agent{rank}, average abs lambda max:", np.mean(np.abs(lambda_inner)), flush=True)
+            print(f"Agent{rank}, (radius max: {radius[1]})", flush=True)"""
+        # -----------------------------------------------------------------------
+        
+        """# 補正後の条件をチェック
+        X_new = X + X_delta + X_delta_parallel + X_delta_perp
+        flag[ind_other] = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other], dtype=bool)
+        flag[ind_sv] = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv], dtype=bool)
+        flag[ind_inner] = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner], dtype=bool)
+        
+        # 一つでも条件を満たさない点があれば警告
+        if not np.all(flag):
+            print(f"Agent{rank}, INNER Warning: Not all points satisfy the conditions after noise addition.", flush=True)
+            print(f"        Agent{rank}, False deta -> other: {np.sum(~flag[ind_other])}, sv: {np.sum(~flag[ind_sv])}, inner: {np.sum(~flag[ind_inner])}", flush=True)
+
+        for i in ind_inner:
+            f_val = self.f(X_new[i])
+            if y[i] * f_val >= 1:
+                print(f"Agent{rank}, i={i}, f={f_val:.15f}, y*f={y[i] * f_val:.15f}")"""
+        
+        # wに垂直なノイズの半径を計算
+        r_perp = np.copy(r)
+        if len(ind_inner) > 0:
+            r_perp[ind_inner] = np.sqrt(np.maximum(r[ind_inner]**2 - lambda_inner**2, 0))
+            
+        # wと垂直なノイズを作成 -----------------------------------------------------
+        for i in ind_corr:
+            current_seed = np.random.SeedSequence([seed, i])
+            X_delta_perp[i] = self.generate_tangent_noise(dim, (r_perp[i], r_perp[i]), seed=current_seed)
+        
+        # w_deltaを補正（w_deltaはwに垂直な成分しかもっていないため一括補正可能）
+        coef = y[ind_corr] * alphas[ind_corr]
+        denom = np.dot(coef, coef)
+        w_delta = X_delta_perp[ind_corr].T @ coef
+        X_delta_perp[ind_corr] -= np.outer(coef, w_delta) / denom
+        # -----------------------------------------------------------------------
+        
+        
+        
+        #補正後の条件をチェック
+        X_new = X + X_delta + X_delta_parallel + X_delta_perp
+        flag[ind_other] = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other], dtype=bool)
+        flag[ind_sv] = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv], dtype=bool)
+        flag[ind_inner] = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner], dtype=bool)
+        
+        # 一つでも条件を満たさない点があれば警告
+        if not np.all(flag):
+            print(f"Agent{rank}, Warning: Not all points satisfy the conditions after noise addition.", flush=True)
+            print(f"        Agent{rank}, False deta -> other: {np.sum(~flag[ind_other])}, sv: {np.sum(~flag[ind_sv])}, inner: {np.sum(~flag[ind_inner])}", flush=True)
+
+        """w = X[ind_corr].T @ (y[ind_corr] * alphas[ind_corr])
+        w_new = X_new[ind_corr].T @ (y[ind_corr] * alphas[ind_corr])
+        w_error = w_new - w
+        print("||w_new - w|| =", np.linalg.norm(w_error))
+        print("relative error =", np.linalg.norm(w_error) / np.linalg.norm(w))"""
+                        
+        # 元データからの平均移動距離
+        d_move = np.mean(np.linalg.norm(X_new - X, axis=1))
+            
+        return X_new, y.copy(), d_move
+    
+    def generate_lambda_sub_0(self, X_sub, y_sub, r_sub, s_sub, ind_sub):
+        """
+        内部点に対する初期のλを生成する関数
+        """       
+        f_sub = np.array([self.f(x) for x in X_sub])
+        d_sub = y_sub * (1.0 - y_sub * f_sub) / np.linalg.norm(self.w)
+            
+        lambda_sub_0 = 0.5 * s_sub * np.minimum(d_sub, r_sub)
+        lambda_sub_0 = 0.5 * s_sub * r_sub
+        
+        return lambda_sub_0
     
     
+    def optimize_lambda(self, lambda_sub_0, X_sub, y_sub, alphas_sub, r_sub):
+
+        # 制約の厳しさ
+        epsilon = 1e-4
+        
+        # サイズ
+        N_sub = len(lambda_sub_0)
+
+        # QP変数
+        x = cp.Variable(N_sub)
+
+        # Q, c
+        Q = np.eye(N_sub)
+        c = -lambda_sub_0
+
+        # A
+        I = np.eye(N_sub)
+
+        A = np.vstack([
+            I,
+            -I,
+            (y_sub * alphas_sub).reshape(1, -1),
+            -(y_sub * alphas_sub).reshape(1, -1),
+            np.linalg.norm(self.w) * np.diag(y_sub)
+        ])
+
+        # b
+        f_vec = np.array([self.f(X_sub[i]) for i in range(N_sub)])
+        b = np.concatenate([
+            r_sub,
+            r_sub,
+            np.array([0.0]),
+            np.array([0.0]),
+            1.0 - epsilon - y_sub * f_vec
+        ])
+
+        # 目的関数
+        objective = cp.Minimize(
+            0.5 * cp.quad_form(x, Q) + c @ x
+        )
+
+        # 制約
+        constraints = [
+            A @ x <= b
+        ]        
+
+        # QPを解く
+        problem = cp.Problem(objective, constraints)
+        problem.solve()
+
+        # 結果
+        if problem.status not in ["optimal", "optimal_inaccurate"]:
+            raise RuntimeError(f"Agent{rank}, QP failed: {problem.status}")
+
+        lambda_sub = x.value
+
+        return lambda_sub
     
     
-    
+    def optimize_lambda1(self, lambda_sub_0, X_sub, y_sub, alphas_sub, r_sub):
+
+        # 制約の厳しさ
+        epsilon = 1e-3
+
+        # サイズ
+        N_sub = len(lambda_sub_0)
+
+        # ----------------------------------------
+        # 制約が実行可能かの事前チェック
+        # ----------------------------------------
+
+        # f(x)
+        f_vec = np.array([self.f(X_sub[i]) for i in range(N_sub)])
+
+        # margin
+        margin = y_sub * f_vec
+
+        # d_i
+        d = (1.0 - epsilon - margin) / np.linalg.norm(self.w)
+
+        print(f"Agent{rank}, ===== QP feasibility check =====", flush=True)
+
+        # r の範囲
+        print(f"Agent{rank}, r min: {np.min(r_sub)}", flush=True)
+        print(f"Agent{rank}, r max: {np.max(r_sub)}", flush=True)
+
+        # margin の範囲
+        print(f"Agent{rank}, margin min: {np.min(margin)}", flush=True)
+        print(f"Agent{rank}, margin max: {np.max(margin)}", flush=True)
+
+        # margin > 1 の点
+        ind_margin_violation = np.where(
+            margin > 1.0 + epsilon
+        )[0]
+
+        print(
+            f"Agent{rank}, margin > 1 + epsilon: "
+            f"{len(ind_margin_violation)}",
+            flush=True
+        )
+
+        if len(ind_margin_violation) > 0:
+            print(
+                f"Agent{rank}, violation indices: "
+                f"{ind_margin_violation}",
+                flush=True
+            )
+
+            for i in ind_margin_violation:
+                print(
+                    f"Agent{rank}, "
+                    f"i={i}, "
+                    f"margin={margin[i]:.15f}, "
+                    f"d={d[i]:.15e}, "
+                    f"r={r_sub[i]:.15f}",
+                    flush=True
+                )
+
+        # 各点単独で実行可能か
+        #
+        # y_i * lambda_i <= d_i
+        # -r_i <= lambda_i <= r_i
+        #
+        # これが実行可能でないのは
+        # d_i < -r_i の場合
+        ind_individual_infeasible = np.where(
+            d < -r_sub
+        )[0]
+
+        print(
+            f"Agent{rank}, individually infeasible: "
+            f"{len(ind_individual_infeasible)}",
+            flush=True
+        )
+
+        if len(ind_individual_infeasible) > 0:
+            print(
+                f"Agent{rank}, individual infeasible indices: "
+                f"{ind_individual_infeasible}",
+                flush=True
+            )
+
+            for i in ind_individual_infeasible:
+                print(
+                    f"Agent{rank}, "
+                    f"i={i}, "
+                    f"d={d[i]:.15e}, "
+                    f"-r={-r_sub[i]:.15e}",
+                    flush=True
+                )
+
+        # Delta w = 0 制約の係数
+        coef = y_sub * alphas_sub
+
+        print(
+            f"Agent{rank}, sum |y * alpha|: "
+            f"{np.sum(np.abs(coef))}",
+            flush=True
+        )
+
+        print(
+            f"Agent{rank}, alpha min: "
+            f"{np.min(alphas_sub)}",
+            flush=True
+        )
+
+        print(
+            f"Agent{rank}, alpha max: "
+            f"{np.max(alphas_sub)}",
+            flush=True
+        )
+
+        # ----------------------------------------
+        # QP
+        # ----------------------------------------
+
+        # QP変数
+        x = cp.Variable(N_sub)
+
+        # Q, c
+        Q = np.eye(N_sub)
+        c = -lambda_sub_0
+
+        # A
+        I = np.eye(N_sub)
+
+        A = np.vstack([
+            I,
+            -I,
+            coef.reshape(1, -1),
+            -coef.reshape(1, -1),
+            np.linalg.norm(self.w) * np.diag(y_sub)
+        ])
+
+        # b
+        b = np.concatenate([
+            r_sub,
+            r_sub,
+            np.array([0.0]),
+            np.array([0.0]),
+            1.0 - epsilon - y_sub * f_vec
+        ])
+
+        # 目的関数
+        objective = cp.Minimize(
+            0.5 * cp.quad_form(x, Q) + c @ x
+        )
+
+        # 制約
+        constraints = [
+            A @ x <= b
+        ]
+
+        # ----------------------------------------
+        # QPを解く
+        # ----------------------------------------
+
+        problem = cp.Problem(objective, constraints)
+
+        problem.solve()
+
+        print(
+            f"Agent{rank}, QP status: {problem.status}",
+            flush=True
+        )
+
+        # ----------------------------------------
+        # 解のチェック
+        # ----------------------------------------
+
+        if problem.status in ["optimal", "optimal_inaccurate"]:
+
+            lambda_sub = x.value
+
+            # 制約残差
+            residual = A @ lambda_sub - b
+
+            print(
+                f"Agent{rank}, max constraint violation: "
+                f"{np.max(residual)}",
+                flush=True
+            )
+
+            # Delta w constraint
+            delta_w_parallel = np.dot(
+                y_sub * alphas_sub,
+                lambda_sub
+            )
+
+            print(
+                f"Agent{rank}, sum(y * alpha * lambda): "
+                f"{delta_w_parallel}",
+                flush=True
+            )
+
+            # lambda の範囲
+            print(
+                f"Agent{rank}, lambda min: "
+                f"{np.min(lambda_sub)}",
+                flush=True
+            )
+
+            print(
+                f"Agent{rank}, lambda max: "
+                f"{np.max(lambda_sub)}",
+                flush=True
+            )
+
+            # margin constraint
+            margin_new = (
+                margin
+                + y_sub * lambda_sub * np.linalg.norm(self.w)
+            )
+
+            print(
+                f"Agent{rank}, new margin min: "
+                f"{np.min(margin_new)}",
+                flush=True
+            )
+
+            print(
+                f"Agent{rank}, new margin max: "
+                f"{np.max(margin_new)}",
+                flush=True
+            )
+
+            # 制約違反点
+            violation = np.where(
+                margin_new > 1.0 + epsilon
+            )[0]
+
+            print(
+                f"Agent{rank}, new margin violation: "
+                f"{len(violation)}",
+                flush=True
+            )
+
+            print(
+                f"Agent{rank}, ==============================",
+                flush=True
+            )
+
+            return lambda_sub
+
+        # ----------------------------------------
+        # infeasible の場合
+        # ----------------------------------------
+
+        else:
+            print(
+                f"Agent{rank}, ===== QP FAILED =====",
+                flush=True
+            )
+
+            if len(ind_individual_infeasible) > 0:
+                print(
+                    f"Agent{rank}, 原因候補: "
+                    f"個々の lambda 制約が実行不可能",
+                    flush=True
+                )
+
+            else:
+                print(
+                    f"Agent{rank}, "
+                    f"個々の lambda 制約は実行可能です。",
+                    flush=True
+                )
+
+                print(
+                    f"Agent{rank}, "
+                    f"Delta w = 0 制約との組み合わせで "
+                    f"infeasible になっている可能性があります。",
+                    flush=True
+                )
+
+            print(
+                f"Agent{rank}, ====================",
+                flush=True
+            )
+
+            raise RuntimeError(
+                f"Agent{rank}, QP failed: {problem.status}"
+            )
     
     
     

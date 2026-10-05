@@ -62,24 +62,25 @@ class MySVM_TG(MySVM_t, MySVM_g):
 
         return SA, nrmse, nmae, np.max(Y_pred_no_int), np.min(Y_pred_no_int)    
     
-    def calculate_w_cos_and_b_error(self, w_ori, w, b_ori, b):
-    
-            # コサイン類似度
-            cos_theta = np.dot(w_ori, w) / (np.linalg.norm(w_ori) * np.linalg.norm(w))
-    
-            # 丸め誤差対策
-            cos_theta = np.clip(cos_theta, -1.0, 1.0)
-    
-            # 角度（ラジアン）
-            theta = np.arccos(cos_theta)
-    
-            # 角度（度）
-            theta_deg = np.degrees(theta)
+    def calculate_w_cos(self, w_ori, w, b_ori, b):
             
-            # bの誤差を計算
-            b_error = np.abs(b_ori - b)
-    
-            return cos_theta, theta, theta_deg, b_error
+        # 拡張ベクトル (w, b)^T
+        w_ori_ext = np.append(w_ori, b_ori)
+        w_ext = np.append(w, b)
+
+        # コサイン類似度
+        cos_theta = np.dot(w_ori_ext, w_ext) / (np.linalg.norm(w_ori_ext) * np.linalg.norm(w_ext))
+
+        # 丸め誤差対策
+        cos_theta = np.clip(cos_theta, -1.0, 1.0)
+
+        # 角度（ラジアン）
+        theta = np.arccos(cos_theta)
+
+        # 角度（度）
+        theta_deg = np.degrees(theta)
+
+        return cos_theta, theta, theta_deg
     
 
 
@@ -101,7 +102,7 @@ def main():
     # MPIのrankとhostを表示する
     for i in range(size):
         if rank == i:
-            print(f"rank={rank}, host={host}")
+            print(f"rank={rank}, host={host}", flush=True)
         comm.Barrier()
     
     # ---------- iris ----------
@@ -115,13 +116,13 @@ def main():
     # --------------------------
 
     # ---------- adult ---------
-    X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
-    X_test, Y_test = ad.X_test, ad.Y_test
+    #X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
+    #X_test, Y_test = ad.X_test, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
-    X_train, Y_train = ai.X6_5_train, ai.Y6_5_train
-    X_test, Y_test = ai.X_test, ai.Y_test
+    #X_train, Y_train = ai.X6_5_train, ai.Y6_5_train
+    #X_test, Y_test = ai.X_test, ai.Y_test
     # --------------------------
 
     # -------- 隣接行列 --------
@@ -294,7 +295,7 @@ def main():
     f1 = f1_score(Y_pred, Y_test)
     SA, nrmse, nmae, max_f, min_f = mysvm.calculate_SV_RMSE(Y_pred_ori_no_int, Y_pred_no_int)
     if mysvm.kernel == "linear":
-        cos_theta, theta, theta_deg, b_error = mysvm.calculate_w_cos_and_b_error(w_ori, mysvm.w, b_ori, mysvm.b)
+        cos_theta, theta, theta_deg = mysvm.calculate_w_cos(w_ori, mysvm.w, b_ori, mysvm.b)
 
     # 目的関数値の値を再計算 -------------
     L1, L2 = 0, 0
@@ -333,7 +334,7 @@ def main():
             if mysvm.kernel == "linear":
                 print(f'cos: {cos_theta:.12f}', flush=True)
                 print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
-                print(f'b_error: {b_error:.12f}', flush=True)
+                #print(f'b_error: {b_error:.12f}', flush=True)
             print('', flush=True)
         
         comm.Barrier()
@@ -433,7 +434,8 @@ def main():
     #X_train, Y_train = mysvm.make_fake_data(X_train, mysvm.ind_sv, lr = 0.01, bounds_eps=1e-6, max_iter=100)
     #X_train, Y_train = mysvm.make_fake_data_random(X_train, Y_train, radius = radius, max_retry = 10000)
     #X_train, Y_train = mysvm.make_fake_data_random_with_margin(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
-    X_train, Y_train = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+    #X_train, Y_train, d_move = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+    X_train, Y_train, d_move = mysvm.make_fake_data_KKT_QP(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
     comm.Barrier()
     
     
@@ -478,7 +480,7 @@ def main():
         
         SA, nrmse, nmae, max_f, min_f = mysvm.calculate_SV_RMSE(Y_pred_ori_no_int, Y_pred_no_int)
         if mysvm.kernel == "linear":
-            cos_theta, theta, theta_deg, b_error = mysvm.calculate_w_cos_and_b_error(w_ori, mysvm.w, b_ori, mysvm.b)
+            cos_theta, theta, theta_deg = mysvm.calculate_w_cos(w_ori, mysvm.w, b_ori, mysvm.b)
 
         print(f'SA: {SA* 100:.2f}%', flush=True)
         print(f'NRMSE: {nrmse:.12f}', flush=True)
@@ -487,7 +489,7 @@ def main():
         if mysvm.kernel == "linear":
             print(f'cos: {cos_theta:.12f}', flush=True)
             print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
-            print(f'b_error: {b_error:.12f}', flush=True)
+            #print(f'b_error: {b_error:.12f}', flush=True)
         print('', flush=True)
             
         if plt == True:
@@ -589,7 +591,7 @@ def main():
     f1 = f1_score(Y_pred, Y_test)
     SA, nrmse, nmae, max_f, min_f = mysvm.calculate_SV_RMSE(Y_pred_ori_no_int, Y_pred_no_int)
     if mysvm.kernel == "linear":
-        cos_theta, theta, theta_deg, b_error = mysvm.calculate_w_cos_and_b_error(w_ori, mysvm.w, b_ori, mysvm.b)
+        cos_theta, theta, theta_deg = mysvm.calculate_w_cos(w_ori, mysvm.w, b_ori, mysvm.b)
 
     # 目的関数値の値を再計算 -------------
     L1, L2 = 0, 0
@@ -628,7 +630,7 @@ def main():
             if mysvm.kernel == "linear":
                 print(f'cos: {cos_theta:.12f}', flush=True)
                 print(f'angle: {theta_deg:.12f} deg ({theta:.12f} rad)', flush=True)
-                print(f'b_error: {b_error:.12f}', flush=True)
+                #print(f'b_error: {b_error:.12f}', flush=True)
             print('', flush=True)
         
         comm.Barrier()

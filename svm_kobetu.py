@@ -27,6 +27,7 @@ from sklearn.metrics import f1_score
 import data_iris as ir
 import data_cancer as ca
 import data_adult as ad
+import data_airline as ai
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -115,17 +116,21 @@ def main():
     # --------------------------
 
     # ---------- adult ---------
-    #X_train, Y_train = ad.X6_1_train, ad.Y6_1_train
-    #X_test, Y_test = ad.X_test, ad.Y_test
+    X_train, Y_train = ad.X6_1_train, ad.Y6_1_train
+    X_test, Y_test = ad.X_test, ad.Y_test
     # --------------------------
 
+    # ---------- airline ---------
+    #X_train, Y_train = ai.X6_5_train, ai.Y6_5_train
+    #X_test, Y_test = ai.X_test, ai.Y_test
+    # ---------------------------
 
 
 
     # -------------------------
 
     # --- カーネルを指定してインスタンスを生成 ---
-    mysvm = MySVM_K(kernel = 'linear', C = 1)
+    mysvm = MySVM_K(kernel = 'linear', C = .1)
     #mysvm = MySVM(kernel = 'poly', degree = 2, coef0 = 1.0, C = 1)
     #mysvm = MySVM(kernel = 'rbf', gamma = 1, C = 1)
     #mysvm = MySVM(kernel = 'sigmoid', gamma = 1.0, coef0 = 1.0, C = 1.0)

@@ -16,6 +16,9 @@ from scipy.spatial import ConvexHull
 # 直交行列生成用
 from scipy.linalg import orth
 
+# 凸最適化用
+import cvxpy as cp
+
 
 
 # 疑似データ用のクラス
@@ -575,603 +578,135 @@ class BaseSVM_for_Gizi(MySVM):
     
     
     
-    
     def make_fake_data_KKT(self, X, y, alphas, radius, max_retry):
-        """
-        6/1 KKT条件から動かす条件を決めてノイズを加える方法
-        （linearカーネル限定）
-        Args:
-            X (_type_): _description_
-            y (_type_): _description_
-            alphas (_type_): _description_
-            radius (_type_): _description_
-            max_retry (_type_): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        
-        def plt_Data_1(x1, x2, y, x_range=(-0.05, 1.05), y_range=(-0.05, 1.05)):
-        
-            x_min, x_max = x_range
-            y_min, y_max = y_range
-
-            xx, yy = np.meshgrid(np.linspace(x_min, x_max, 500), np.linspace(y_min, y_max, 500))
-
-            # 判別関数の出力を取得
-            XY = np.vstack([xx.ravel(), yy.ravel()]).T
-            Z = np.array([self.f(xy) for xy in XY]).reshape(xx.shape)
-
-            # levelsを100段階の連続にする
-            levels = np.linspace(Z.min(), Z.max(), 100)
-
-            # フィールドをプロット
-            cf = plt.contourf(xx, yy, Z, levels=levels, cmap='coolwarm', alpha=0.6)
-            plt.contour(xx, yy, Z, levels=[0], colors='k', linestyles='-')      # 決定境界を黒線で
-            plt.contour(xx, yy, Z, levels=[-1, 1], colors='k', linestyles=':')  # f(x) = +-1を点線で
-        
-            # データプロット
-            if y == -1:
-                plt.scatter(x1[0], x1[1], c='blue', edgecolor='k', s=20, label='label = -1')
-                plt.scatter(x2[0], x2[1], c='blue', edgecolor='k', s=20, label='label = -1')
-            else:
-                plt.scatter(x1[0], x1[1], c='red', edgecolor='k', s=20, label='label = +1')
-                plt.scatter(x2[0], x2[1], c='red', edgecolor='k', s=20, label='label = +1')
-            plt.scatter(x2[0], x2[1], s=100, facecolors='none', edgecolors='k') 
-
-            plt.colorbar(cf)
-            plt.xlabel('X1')
-            plt.ylabel('X2')
-            #plt.xlabel('petal length (cm)')
-            #plt.ylabel('petal width (cm)')
-            plt.legend#(fontsize=9)
-
-            plt.rcParams['pdf.fonttype'] = 42
-            plt.rcParams['ps.fonttype'] = 42
-            plt.show()
-
-
-        ind_sv, ind_inner = self._get_SV_ind(alphas)
-        ind_other = np.setdiff1d(np.arange(len(alphas)), np.concatenate([ind_sv, ind_inner]))
-        
-        #print(f"Other Points: {ind_other}")
-        #print(f"Support Vectors: {ind_sv}")
-        #print(f"Inner Points: {ind_inner}")
-        
-        X_delta = np.zeros_like(X)
-        X_new = np.zeros_like(X)
-        alphas_new = np.zeros_like(alphas)
-        
-        flag = np.full(len(X), False, dtype=bool)
-        
-        dim = X.shape[1]
+            """
+            KKT条件から動かす条件を決めてノイズを加える方法
+            （linearカーネル限定）
+            Args:
+                X (_type_): _description_
+                y (_type_): _description_
+                alphas (_type_): _description_
+                radius (_type_): _description_
+                max_retry (_type_): _description_
+    
+            Returns:
+                _type_: _description_
+            """
+    
+            ind_sv, ind_inner = self._get_SV_ind(alphas)
+            ind_other = np.setdiff1d(np.arange(len(alphas)), np.concatenate([ind_sv, ind_inner]))
+            
+            #print(f"Other Points: {ind_other}")
+            #print(f"Support Vectors: {ind_sv}")
+            #print(f"Inner Points: {ind_inner}")
+            
+            X_new = np.zeros_like(X)
+            X_delta = np.zeros_like(X)
+            
+            # X_deltaの補正に用いるΣα_i^2の計算
+            denom = np.dot(alphas, alphas)
+            # X_deltaの補正に用いるΣy_iα_iの計算
+            coef = y * alphas
+            
+            # Xの次元数を取得
+            dim = X.shape[1]
+            
+            # すべての点のフラグを初期化
+            flag = np.full(len(X), False, dtype=bool)
+    
+            # マージンの条件ごとの各種設定
+            configs = [
+                {
+                    "name": "other",
+                    "ind": ind_other,
+                    "noise_func": self.generate_directional_noise,
+                    "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
+                    "margin_cond": lambda i: y[i] * self.f(X_new[i]) > 1,# + self.ME,
+                },
+                {
+                    "name": "support_vector",
+                    "ind": ind_sv,
+                    "noise_func": self.generate_tangent_noise,
+                    "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
+                    "margin_cond": lambda i: abs(self.f(X[i]) - self.f(X_new[i])) < self.ME,
+                },
+                {
+                    "name": "inner",
+                    "ind": ind_inner,
+                    "noise_func": self.generate_directional_noise,
+                    "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
+                    "margin_cond": lambda i: y[i] * self.f(X_new[i]) < 1,# - self.ME,
+                },
+            ]
                 
-        # ind_otherのデータを動かす
-        for p in ind_other: 
+            iter = 0
+            
+            while not np.all(flag):
                 
-            for retry in range(max_retry):
+                #print(f"Iteration {iter}: radius: ({radius[0]}, {radius[1]}), {np.sum(flag)} / {len(X)} points satisfied the conditions.", flush=True)
+                #print(f"        False deta -> other: {np.sum(~flag[ind_other])}, sv: {np.sum(~flag[ind_sv])}, inner: {np.sum(~flag[ind_inner])}", flush=True)
                 
-                # ランダム初期移動を毎回生成  
-                X_delta[p] = self.generate_directional_noise(dim, radius, seed=p * 100 + retry)
-                X_new[p] = X[p] + X_delta[p]
-                                    
-                # [0,1] 且つマージンの外にあるか判定
-                cond_p_area = np.all((X_new[p] >= 0) & (X_new[p] <= 1))
-                cond_p_margin = y[p] * self.f(X_new[p]) > 1
-
-                #if (not cond_p_area) or (not cond_p_margin):
-                if not cond_p_margin:
-                    continue
+                # (1) 全点について候補ノイズを生成
+                for cfg in configs:
+                    for i in cfg["ind"][~flag[cfg["ind"]]]:
+                        for retry in range(max_retry):
+                            X_delta[i] = cfg["noise_func"](dim, radius, seed=i * 100000 + iter * 1000 + retry)
+                            X_new[i] = X[i] + X_delta[i]
+                            
+                            cond_i_area = cfg["area_cond"](i)
+                            cond_i_margin = cfg["margin_cond"](i)
+                            
+                            #if cond_i_area and cond_i_margin:
+                            if cond_i_margin:
+                                flag[i] = True
+                                break
                     
-                flag[p] = True
-                break
+                        # 失敗時のメッセージ
+                        if not flag[i]:
+                            print(f"Retry failed for index {i} in '{cfg['name']}' category.", flush=True)
                 
-            # 失敗時のメッセージ
-            if not flag[p]:
-                print(f"Retry failed for index {p}.")
-                                          
-            alphas_new[p] = 0
-        
-        """# ind_svのデータを動かす
-        while not np.all(flag[ind_sv]):
-            #print(flag[self.ind_sv])
-
-            remain = ind_sv[~flag[ind_sv]]
-
-            if len(remain) >= 2:
-                p, q = remain[0], remain[1]
-
-            elif len(remain) == 1:
-                p = remain[0]
+                # (2) 候補ノイズ全体に補正           
+                w_delta = X_delta.T @ coef
+                X_delta -= np.outer(coef, w_delta) / denom
                 
-                q = None
-                for ind in self.ind_sv:
-                    if ind != p:
-                        q = ind
-                        break
-                if q is None:
-                    print(f"Error: No valid q found for p={p}.")
-                    break
-
-            else:
-                break
-
-            for retry in range(max_retry):
+                # 補正後に再チェック
+                X_new = X + X_delta
                 
-                #X[p]がwと直交する場合の処理を要検討
-                #cond_p_w = abs(np.dot(self.w, X[p])) < self.ME
+                # (3) 補正後の条件をチェック
+                cond_margin_other = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other], dtype=bool)
+                cond_margin_sv = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv], dtype=bool)
+                cond_margin_inner = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner], dtype=bool)
                 
-                # ランダム初期移動を毎回生成  
-                x_p_delta = self.generate_tangent_noise(dim, radius, seed=p * 100 + retry)
-                x_p = X[p] + x_p_delta
-                                
-                # x_pが[0,1] 且つサポートベクターであるか判定
-                cond_p_area = np.all((x_p >= 0) & (x_p <= 1))
-                cond_p_margin = abs(self.f(X[p]) - self.f(x_p)) < self.ME
+                flag[ind_other] = cond_margin_other
+                flag[ind_sv] = cond_margin_sv
+                flag[ind_inner] = cond_margin_inner
                 
-                #if (not cond_p_area) or (not cond_p_margin):
-                if not cond_p_margin:
-                    print(f"abs(self.f(X[p]) - self.f(x_p)): {abs(self.f(X[p]) - self.f(x_p))}")
-                    print(f"cond_p_area: {cond_p_area}, cond_p_margin: {cond_p_margin}")
-                    continue
-                
-                # qはpに合わせて動かす
-                x_q_delta = -1 * (y[p] * alphas[p]) / (y[q] * alphas[q]) * x_p_delta
-                x_q = X[q] + x_q_delta
-
-                # x_qが[0,1] 且つサポートベクターであるか判定
-                cond_q_area = np.all((x_q >= 0) & (x_q <= 1))
-                cond_q_margin = abs(self.f(X[q]) - self.f(x_q)) < self.ME
-
-                #if (not cond_q_area) or (not cond_q_margin):
-                if not cond_q_margin:
-                    print(f"    abs(self.f(X[q]) - self.f(x_q)): {abs(self.f(X[q]) - self.f(x_q))}")
-                    print(f"    cond_q_area: {cond_q_area}, cond_q_margin: {cond_q_margin}")
-                    continue
-                
-                flag[p] = flag[q] = True
-                break
-                
-            # 失敗時は元データを使う
-            if not flag[p]:
-                print(f"Retry failed for index {p}, {q}, using original data point.")
-                x_p = X[p].copy()
-                x_q = X[q].copy()
-                
-            X_new[p] = x_p
-            alphas_new[p] = alphas[p]
-            X_new[q] = x_q
-            alphas_new[q] = alphas[q]"""
-        
-        # ind_svのデータを動かす
-        t_start = time.time()
-        iter = 0
-        while not np.all(flag[ind_sv]):
-
-            # False の点だけ再生成
-            for p in ind_sv:
-
-                if flag[p]:
-                    continue
-
-                for retry in range(max_retry):
-
-                    X_delta[p] = self.generate_tangent_noise(dim, radius, seed=p * 100000 + iter * 1000 + retry)
-                    X_new[p] = X[p] + X_delta[p]
-
-                    cond_p_area = np.all((X_new[p] >= 0) & (X_new[p] <= 1))
-                    cond_p_margin = abs(self.f(X[p]) - self.f(X_new[p])) < self.ME
-
-                    #if not (cond_p_area and cond_p_margin):
-                    if not cond_p_margin:
-                        continue
-
-                    flag[p] = True
-                    break
-                
-                # 失敗時のメッセージ
-                if not flag[p]:
-                    print(f"Retry failed for index {p}.")
-                    
-            # 全体補正
-            r = np.sum(y[ind_sv, np.newaxis] * alphas[ind_sv, np.newaxis] * X_delta[ind_sv],axis=0)
-            
-            denom = np.sum(alphas[ind_sv] ** 2)
-            X_delta[ind_sv] -= (y[ind_sv, np.newaxis] * alphas[ind_sv, np.newaxis] / denom) * r
-            
-            # 補正後に再チェック
-            X_new[ind_sv] = X[ind_sv] + X_delta[ind_sv]
-
-            cond_area = np.all((X_new[ind_sv] >= 0) & (X_new[ind_sv] <= 1),axis=1)
-            cond_margin = np.array([abs(self.f(X[p]) - self.f(X_new[p])) < self.ME for p in ind_sv])
-
-            #flag[ind_sv] = cond_area & cond_margin
-            flag[ind_sv] = cond_margin
-        
-            iter += 1
-        
-        alphas_new[ind_sv] = alphas[ind_sv]
-        
-        t_end = time.time()
-        print(f"Time taken for KKT-based fake data generation (inner): {t_end - t_start:.4f} seconds")
+                # エリアの違反があればFlaseにする．
+                #cond_area = np.all((X_new >= 0) & (X_new <= 1), axis=1)
+                #flag &= cond_area
     
-        """# ind_innerのデータを動かす
-        t_start = time.time()
-        while not np.all(flag[ind_inner]):
-            #print(flag[self.ind_inner])
-
-            remain = ind_inner[~flag[ind_inner]]
-
-            if len(remain) >= 2:
-                p, q = remain[0], remain[1]
-
-            elif len(remain) == 1:
-                p = remain[0]
+                iter += 1
+                            
+            # 元データからの平均移動距離
+            d_move = np.mean(np.linalg.norm(X_new - X, axis=1))
                 
-                q = None
-                for ind in self.ind_inner:
-                    if ind != p:
-                        q = ind
-                        break
-                if q is None:
-                    print(f"Error: No valid q found for p={p}.")
-                    break
-
-            else:
-                break
-
-            for retry in range(max_retry):
-                
-                # ランダム初期移動を毎回生成  
-                x_p_delta = self.generate_directional_noise(dim, radius, seed=p * 100 + retry)
-                x_p = X[p] + x_p_delta
-                
-                # x_pが[0,1] 且つ違反サンプルであるか判定
-                cond_p_area = np.all((x_p >= 0) & (x_p <= 1))
-                cond_p_margin = y[p] * self.f(x_p) < 1
-                
-                #if (not cond_p_area) or (not cond_p_margin):
-                if not cond_p_margin:
-                    continue
-                
-                # qはpに合わせて動かす
-                x_q_delta = -1 * y[p] * y[q] * x_p_delta
-                x_q = X[q] + x_q_delta
-
-                # x_qが[0,1] 且つ違反サンプルであるか判定
-                cond_q_area = np.all((x_q >= 0) & (x_q <= 1))
-                cond_q_margin = y[q] * self.f(x_q) < 1
-
-                #if (not cond_q_area) or (not cond_q_margin):
-                if not cond_q_margin:
-                    continue
-                
-                flag[p] = flag[q] = True
-                break
-                
-            # 失敗時は元データを使う
-            if not flag[p]:
-                print(f"Retry failed for index {p}, {q}, using original data point.")
-                x_p = X[p].copy()
-                x_q = X[q].copy()
-                
-            X_new[p] = x_p
-            alphas_new[p] = self.C
-            X_new[q] = x_q
-            alphas_new[q] = self.C
-        
-        t_end = time.time()
-        print(f"Time taken for KKT-based fake data generation (pairwise): {t_end - t_start:.4f} seconds")"""
-                
-        # ind_innerのデータを動かす
-        t_start = time.time()
-        iter = 0
-        while not np.all(flag[ind_inner]):
-
-            # False の点だけ再生成
-            for p in ind_inner:
-
-                if flag[p]:
-                    continue
-
-                for retry in range(max_retry):
-
-                    X_delta[p] = self.generate_directional_noise(dim, radius, seed=p * 100000 + iter * 1000 + retry)
-                    X_new[p] = X[p] + X_delta[p]
-
-                    cond_p_area = np.all((X_new[p] >= 0) & (X_new[p] <= 1))
-                    cond_p_margin = y[p] * self.f(X_new[p]) < 1
-
-                    #if not (cond_p_area and cond_p_margin):
-                    if not cond_p_margin:
-                        continue
-
-                    flag[p] = True
-                    break
-                
-                # 失敗時のメッセージ
-                if not flag[p]:
-                    print(f"Retry failed for index {p}.")
-                    
-            # 全体補正
-            r = np.sum(y[ind_inner, np.newaxis] * X_delta[ind_inner], axis=0)
-
-            num_inner = len(ind_inner)
-            X_delta[ind_inner] -= (y[ind_inner, np.newaxis] / num_inner) * r
-
-            # 補正後に再チェック
-            X_new[ind_inner] = X[ind_inner] + X_delta[ind_inner]
-
-            cond_area = np.all((X_new[ind_inner] >= 0) & (X_new[ind_inner] <= 1),axis=1)
-            cond_margin = np.array([y[p] * self.f(X_new[p]) < 1 for p in ind_inner])
-
-            #flag[ind_inner] = cond_area & cond_margin
-            flag[ind_inner] = cond_margin
-        
-            iter += 1
-        
-        alphas_new[ind_inner] = self.C
-        
-        t_end = time.time()
-        print(f"Time taken for KKT-based fake data generation (inner): {t_end - t_start:.4f} seconds")
-        
-        return X_new, y.copy()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    def make_fake_data_KKT(self, X, y, alphas, radius, max_retry):
-        """
-        6/1 KKT条件から動かす条件を決めてノイズを加える方法
-        （linearカーネル限定）
-        Args:
-            X (_type_): _description_
-            y (_type_): _description_
-            alphas (_type_): _description_
-            radius (_type_): _description_
-            max_retry (_type_): _description_
-
-        Returns:
-            _type_: _description_
-        """
-
-        ind_sv, ind_inner = self._get_SV_ind(alphas)
-        ind_other = np.setdiff1d(np.arange(len(alphas)), np.concatenate([ind_sv, ind_inner]))
-        
-        #print(f"Other Points: {ind_other}")
-        #print(f"Support Vectors: {ind_sv}")
-        #print(f"Inner Points: {ind_inner}")
-        
-        X_delta = np.zeros_like(X)
-        X_new = np.zeros_like(X)
-        
-        # X_deltaの補正に用いるΣα_i^2の計算
-        denom = np.sum(alphas ** 2)
-        # X_deltaの補正に用いるΣy_iα_iの計算
-        coef = (y * alphas)[:, None]
-        
-        # Xの次元数を取得
-        dim = X.shape[1]
-        
-        # すべての点のフラグを初期化
-        flag = np.full(len(X), False, dtype=bool)
-        
-        
-        
-        # X_deltaを作るための関数（マージンの条件ごとに違う関数でノイズを作るので関数に分けておく）
-        def generate_noise(ind, X, X_delta, X_new, flag, noise_func, dim, radius, max_retry, area_cond, margin_cond):
-            
-            for i in ind[~flag[ind]]:
-                for retry in range(max_retry):
-                    X_delta[i] = noise_func(dim, radius, seed=i * 100000 + iter * 1000 + retry)
-                    X_new[i] = X[i] + X_delta[i]
-                    
-                    cond_p_area = area_cond(i)
-                    cond_p_margin = margin_cond(i)
-                    
-                    #if cond_p_area and cond_p_margin:
-                    if cond_p_margin:
-                        flag[i] = True
-                        break
-                
-                # 失敗時のメッセージ
-                if not flag[i]:
-                    print(f"Retry failed for index {i}.")
-        
-            return X_delta
-
-
-
-        # マージンの条件ごとの各種設定
-        configs = [
-            {
-                "ind": ind_other,
-                "noise_func": self.generate_directional_noise,
-                "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                "margin_cond": lambda i: y[i] * self.f(X_new[i]) > 1,
-            },
-            {
-                "ind": ind_sv,
-                "noise_func": self.generate_tangent_noise,
-                "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                "margin_cond": lambda i: abs(self.f(X[i]) - self.f(X_new[i])) < self.ME,
-            },
-            {
-                "ind": ind_inner,
-                "noise_func": self.generate_directional_noise,
-                "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                "margin_cond": lambda i: y[i] * self.f(X_new[i]) < 1,
-            },
-        ]
-         
-         
-            
-        iter = 0
-        
-        while not np.all(flag):
-            
-            # False の点だけ再生成
-            for cfg in configs:
-               for i in cfg["ind"][~flag[cfg["ind"]]]:
-                for retry in range(max_retry):
-                    X_delta[i] = cfg["noise_func"](dim, radius, seed=i * 100000 + iter * 1000 + retry)
-                    X_new[i] = X[i] + X_delta[i]
-                    
-                    cond_p_area = cfg["area_cond"](i)
-                    cond_p_margin = cfg["margin_cond"](i)
-                    
-                    #if cond_p_area and cond_p_margin:
-                    if cond_p_margin:
-                        flag[i] = True
-                        break
-                
-                # 失敗時のメッセージ
-                if not flag[i]:
-                    print(f"Retry failed for index {i}.")
-            
-            """# ind_otherのFalseの点を生成
-            X_delta = generate_noise(
-                ind_other,
-                X, X_delta, X_new, flag,
-                self.generate_directional_noise,
-                dim, radius, max_retry,
-                lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                lambda i: y[i] * self.f(X_new[i]) > 1
-            )
-            
-            # ind_svのFalseの点を生成
-            X_delta = generate_noise(
-                ind_sv,
-                X, X_delta, X_new, flag,
-                self.generate_tangent_noise,
-                dim, radius, max_retry,
-                lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                lambda i: abs(self.f(X[i]) - self.f(X_new[i])) < self.ME
-            )
-            
-            # ind_innerのFalseの点を生成
-            X_delta = generate_noise(
-                ind_inner,
-                X, X_delta, X_new, flag,
-                self.generate_directional_noise,
-                dim, radius, max_retry,
-                lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                lambda i: y[i] * self.f(X_new[i]) < 1
-            )"""
-            
-            """# ind_otherのFalseの点を生成
-            for p in ind_other[~flag[ind_other]]:
-
-                for retry in range(max_retry):
-
-                    X_delta[p] = self.generate_directional_noise(dim, radius, seed=p * 100000 + iter * 1000 + retry)
-                    X_new[p] = X[p] + X_delta[p]
-
-                    cond_p_area = np.all((X_new[p] >= 0) & (X_new[p] <= 1))
-                    cond_p_margin = y[p] * self.f(X_new[p]) > 1
-
-                    #if not (cond_p_area and cond_p_margin):
-                    if not cond_p_margin:
-                        continue
-
-                    flag[p] = True
-                    break
-                
-                # 失敗時のメッセージ
-                if not flag[p]:
-                    print(f"Retry failed for index {p}.")
-            
-            # ind_svのFalseの点を生成
-            for p in ind_sv[~flag[ind_sv]]:
-
-                for retry in range(max_retry):
-
-                    X_delta[p] = self.generate_tangent_noise(dim, radius, seed=p * 100000 + iter * 1000 + retry)
-                    X_new[p] = X[p] + X_delta[p]
-
-                    cond_p_area = np.all((X_new[p] >= 0) & (X_new[p] <= 1))
-                    cond_p_margin = abs(self.f(X[p]) - self.f(X_new[p])) < self.ME
-
-                    #if not (cond_p_area and cond_p_margin):
-                    if not cond_p_margin:
-                        continue
-
-                    flag[p] = True
-                    break
-                
-                # 失敗時のメッセージ
-                if not flag[p]:
-                    print(f"Retry failed for index {p}.")
-        
-            # ind_innerのFalseの点を生成
-            for p in ind_inner[~flag[ind_inner]]:
-
-                for retry in range(max_retry):
-
-                    X_delta[p] = self.generate_directional_noise(dim, radius, seed=p * 100000 + iter * 1000 + retry)
-                    X_new[p] = X[p] + X_delta[p]
-
-                    cond_p_area = np.all((X_new[p] >= 0) & (X_new[p] <= 1))
-                    cond_p_margin = y[p] * self.f(X_new[p]) < 1
-
-                    #if not (cond_p_area and cond_p_margin):
-                    if not cond_p_margin:
-                        continue
-
-                    flag[p] = True
-                    break
-                
-                # 失敗時のメッセージ
-                if not flag[p]:
-                    print(f"Retry failed for index {p}.")"""
-        
-            # 全体補正
-            w_delta = np.sum(coef * X_delta, axis=0)            
-            X_delta -= (coef / denom) * w_delta
-            
-            # 補正後に再チェック
-            X_new = X + X_delta
-            
-            #cond_margin_other = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other])
-            cond_margin_sv = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv])
-            cond_margin_inner = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner])
-
-            # マージンの条件をflagに反映
-            #flag[ind_other] = cond_margin_other
-            flag[ind_sv] = cond_margin_sv
-            flag[ind_inner] = cond_margin_inner
-            
-            # エリアの違反があればFlaseにする．
-            #cond_area = np.all((X_new >= 0) & (X_new <= 1), axis=1)
-            #flag &= cond_area
-        
-            iter += 1
-            
-        return X_new, y.copy()
+            return X_new, y.copy(), d_move
     
 
 
 
-
-
-
-    
-    def make_fake_data_KKT(self, X, y, alphas, radius, max_retry):
+    def make_fake_data_KKT_QP(self, X, y, alphas, radius, max_retry, seed = 42):
         """
         KKT条件から動かす条件を決めてノイズを加える方法
         （linearカーネル限定）
+        wに平行な成分のノイズを決めてからwに垂直な成分のノイズを加える
         Args:
             X (_type_): _description_
             y (_type_): _description_
             alphas (_type_): _description_
             radius (_type_): _description_
             max_retry (_type_): _description_
+            seed (_type_, optional): _description_. Defaults to 42.
 
         Returns:
             _type_: _description_
@@ -1179,98 +714,203 @@ class BaseSVM_for_Gizi(MySVM):
 
         ind_sv, ind_inner = self._get_SV_ind(alphas)
         ind_other = np.setdiff1d(np.arange(len(alphas)), np.concatenate([ind_sv, ind_inner]))
-        
-        #print(f"Other Points: {ind_other}")
-        #print(f"Support Vectors: {ind_sv}")
-        #print(f"Inner Points: {ind_inner}")
+
+        ind_corr = np.concatenate([ind_sv, ind_inner])
+
+        #if len(ind_inner) > 0:
+        #    print(f"innerのalpha平均: {np.mean(alphas[ind_inner]):.15f}")
         
         X_delta = np.zeros_like(X)
-        X_new = np.zeros_like(X)
-        
-        # X_deltaの補正に用いるΣα_i^2の計算
-        denom = np.dot(alphas, alphas)
-        # X_deltaの補正に用いるΣy_iα_iの計算
-        coef = y * alphas
-        
+        X_delta_parallel = np.zeros_like(X)
+        X_delta_perp = np.zeros_like(X)
+    
         # Xの次元数を取得
-        dim = X.shape[1]
+        N, dim = X.shape
         
         # すべての点のフラグを初期化
-        flag = np.full(len(X), False, dtype=bool)
-
-        # マージンの条件ごとの各種設定
-        configs = [
-            {
-                "ind": ind_other,
-                "noise_func": self.generate_directional_noise,
-                "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                "margin_cond": lambda i: y[i] * self.f(X_new[i]) > 1,
-            },
-            {
-                "ind": ind_sv,
-                "noise_func": self.generate_tangent_noise,
-                "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                "margin_cond": lambda i: abs(self.f(X[i]) - self.f(X_new[i])) < self.ME,
-            },
-            {
-                "ind": ind_inner,
-                "noise_func": self.generate_directional_noise,
-                "area_cond": lambda i: np.all((X_new[i] >= 0) & (X_new[i] <= 1)),
-                "margin_cond": lambda i: y[i] * self.f(X_new[i]) < 1,
-            },
-        ]
-            
-        iter = 0
+        flag = np.full(N, False, dtype=bool)
         
-        while not np.all(flag):
+        # シード値を固定して再現性を確保
+        np.random.seed(seed)
+        
+        # randomな半径を生成
+        r = np.random.uniform(radius[0], radius[1], size=N)
+        
+        """#補正後の条件をチェック
+        X_new = X + X_delta + X_delta_parallel + X_delta_perp
+        flag[ind_other] = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other], dtype=bool)
+        flag[ind_sv] = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv], dtype=bool)
+        flag[ind_inner] = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner], dtype=bool)
+        
+        # 一つでも条件を満たさない点があれば警告
+        if not np.all(flag):
+            print(f"ORIGINAL Warning: Not all points satisfy the conditions after noise addition.", flush=True)
+            print(f"        False deta -> other: {np.sum(~flag[ind_other])}, sv: {np.sum(~flag[ind_sv])}, inner: {np.sum(~flag[ind_inner])}", flush=True)
             
-            # False の点だけ再生成
-            for cfg in configs:
-               for i in cfg["ind"][~flag[cfg["ind"]]]:
-                for retry in range(max_retry):
-                    X_delta[i] = cfg["noise_func"](dim, radius, seed=i * 100000 + iter * 1000 + retry)
-                    X_new[i] = X[i] + X_delta[i]
-                    
-                    cond_p_area = cfg["area_cond"](i)
-                    cond_p_margin = cfg["margin_cond"](i)
-                    
-                    #if cond_p_area and cond_p_margin:
-                    if cond_p_margin:
-                        flag[i] = True
-                        break
-                
-                # 失敗時のメッセージ
-                if not flag[i]:
-                    print(f"Retry failed for index {i}.")
+            for i in ind_inner:
+                f_val = self.f(X_new[i])
+                if y[i] * f_val >= 1:
+                    print(f"i={i}, f={f_val:.15f}, y*f={y[i] * f_val:.15f}, d={y[i] * (1.0 - y[i] * self.f(X_new[i])) / np.linalg.norm(self.w):.15f}")"""
+
+        # otherのノイズを作成 ----------------------------------
+        for i in ind_other:
+            for retry in range(max_retry):
+                current_seed = np.random.SeedSequence([seed, i, retry])
+                X_delta[i] = self.generate_directional_noise(dim, (r[i], r[i]), seed=current_seed)
+                                
+                if y[i] * self.f(X[i] + X_delta[i]) > 1:
+                    flag[i] = True
+                    break
             
-            # 全体補正            
-            w_delta = X_delta.T @ coef
-            X_delta -= np.outer(coef, w_delta) / denom
+            # 失敗時のメッセージ
+            if not flag[i]:
+                print(f"Retry failed for index {i} in 'other' category.", flush=True)
+        # -----------------------------------------------------------------------
+        
+        # w方向のノイズを作成 -----------------------------------------------------
+        if len(ind_inner) > 0:
+            s_inner = np.random.choice([-1, 1], size=len(X[ind_inner]))
+            lambda_inner_0 = self.generate_lambda_sub_0(X[ind_inner], y[ind_inner], r[ind_inner], s_inner, ind_inner)
+            lambda_inner = self.optimize_lambda(lambda_inner_0, X[ind_inner], y[ind_inner], alphas[ind_inner], r[ind_inner])
+            
+            # w方向のΔxを作成
+            w_unit = self.w / np.linalg.norm(self.w)
+            X_delta_parallel[ind_inner] = lambda_inner[:, np.newaxis] * w_unit
+            
+            """print(f"lambda min:", np.min(lambda_inner), flush=True)
+            print(f"lambda max:", np.max(lambda_inner), flush=True)
+            print(f"average abs lambda max:", np.mean(np.abs(lambda_inner)), flush=True)
+            print(f"(radius max: {radius[1]})", flush=True)"""
+        # -----------------------------------------------------------------------
+        
+        """# 補正後の条件をチェック
+        X_new = X + X_delta + X_delta_parallel + X_delta_perp
+        flag[ind_other] = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other], dtype=bool)
+        flag[ind_sv] = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv], dtype=bool)
+        flag[ind_inner] = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner], dtype=bool)
+        
+        # 一つでも条件を満たさない点があれば警告
+        if not np.all(flag):
+            print(f"INNER Warning: Not all points satisfy the conditions after noise addition.", flush=True)
+            print(f"        False deta -> other: {np.sum(~flag[ind_other])}, sv: {np.sum(~flag[ind_sv])}, inner: {np.sum(~flag[ind_inner])}", flush=True)
+
+        for i in ind_inner:
+            f_val = self.f(X_new[i])
+            if y[i] * f_val >= 1:
+                print(f"i={i}, f={f_val:.15f}, y*f={y[i] * f_val:.15f}")"""
+        
+        # wに垂直なノイズの半径を計算
+        r_perp = np.copy(r)
+        if len(ind_inner) > 0:
+            r_perp[ind_inner] = np.sqrt(np.maximum(r[ind_inner]**2 - lambda_inner**2, 0))
+            
+        # wと垂直なノイズを作成 -----------------------------------------------------
+        for i in ind_corr:
+            current_seed = np.random.SeedSequence([seed, i])
+            X_delta_perp[i] = self.generate_tangent_noise(dim, (r_perp[i], r_perp[i]), seed=current_seed)
+        
+        # w_deltaを補正（w_deltaはwに垂直な成分しかもっていないため一括補正可能）
+        coef = y[ind_corr] * alphas[ind_corr]
+        denom = np.dot(coef, coef)
+        w_delta = X_delta_perp[ind_corr].T @ coef
+        X_delta_perp[ind_corr] -= np.outer(coef, w_delta) / denom
+        # -----------------------------------------------------------------------
+        
+        
+        
+        #補正後の条件をチェック
+        X_new = X + X_delta + X_delta_parallel + X_delta_perp
+        flag[ind_other] = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other], dtype=bool)
+        flag[ind_sv] = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv], dtype=bool)
+        flag[ind_inner] = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner], dtype=bool)
+        
+        # 一つでも条件を満たさない点があれば警告
+        if not np.all(flag):
+            print(f"Warning: Not all points satisfy the conditions after noise addition.", flush=True)
+            print(f"        False deta -> other: {np.sum(~flag[ind_other])}, sv: {np.sum(~flag[ind_sv])}, inner: {np.sum(~flag[ind_inner])}", flush=True)
+
+        """w = X[ind_corr].T @ (y[ind_corr] * alphas[ind_corr])
+        w_new = X_new[ind_corr].T @ (y[ind_corr] * alphas[ind_corr])
+        w_error = w_new - w
+        print("||w_new - w|| =", np.linalg.norm(w_error))
+        print("relative error =", np.linalg.norm(w_error) / np.linalg.norm(w))"""
                         
-            # 補正後に再チェック
-            X_new = X + X_delta
+        # 元データからの平均移動距離
+        d_move = np.mean(np.linalg.norm(X_new - X, axis=1))
             
-            #cond_margin_other = np.array([y[i] * self.f(X_new[i]) > 1 for i in ind_other])
-            cond_margin_sv = np.array([abs(self.f(X[i]) - self.f(X_new[i])) < self.ME for i in ind_sv])
-            cond_margin_inner = np.array([y[i] * self.f(X_new[i]) < 1 for i in ind_inner])
-
-            # マージンの条件をflagに反映
-            #flag[ind_other] = cond_margin_other
-            flag[ind_sv] = cond_margin_sv
-            flag[ind_inner] = cond_margin_inner
+        return X_new, y.copy(), d_move
+    
+    def generate_lambda_sub_0(self, X_sub, y_sub, r_sub, s_sub, ind_sub):
+        """
+        内部点に対する初期のλを生成する関数
+        """       
+        f_sub = np.array([self.f(x) for x in X_sub])
+        d_sub = y_sub * (1.0 - y_sub * f_sub) / np.linalg.norm(self.w)
             
-            # エリアの違反があればFlaseにする．
-            #cond_area = np.all((X_new >= 0) & (X_new <= 1), axis=1)
-            #flag &= cond_area
+        lambda_sub_0 = 0.5 * s_sub * np.minimum(d_sub, r_sub)
+        lambda_sub_0 = 0.5 * s_sub * r_sub
         
-            iter += 1
-            
-        return X_new, y.copy()
+        return lambda_sub_0
     
-
-
-
     
+    def optimize_lambda(self, lambda_sub_0, X_sub, y_sub, alphas_sub, r_sub):
+
+        # 制約の厳しさ
+        epsilon = 1e-4
+        
+        # サイズ
+        N_sub = len(lambda_sub_0)
+
+        # QP変数
+        x = cp.Variable(N_sub)
+
+        # Q, c
+        Q = np.eye(N_sub)
+        c = -lambda_sub_0
+
+        # A
+        I = np.eye(N_sub)
+
+        A = np.vstack([
+            I,
+            -I,
+            (y_sub * alphas_sub).reshape(1, -1),
+            -(y_sub * alphas_sub).reshape(1, -1),
+            np.linalg.norm(self.w) * np.diag(y_sub)
+        ])
+
+        # b
+        f_vec = np.array([self.f(X_sub[i]) for i in range(N_sub)])
+        b = np.concatenate([
+            r_sub,
+            r_sub,
+            np.array([0.0]),
+            np.array([0.0]),
+            1.0 - epsilon - y_sub * f_vec
+        ])
+
+        # 目的関数
+        objective = cp.Minimize(
+            0.5 * cp.quad_form(x, Q) + c @ x
+        )
+
+        # 制約
+        constraints = [
+            A @ x <= b
+        ]        
+
+        # QPを解く
+        problem = cp.Problem(objective, constraints)
+        problem.solve()
+
+        # 結果
+        if problem.status not in ["optimal", "optimal_inaccurate"]:
+            raise RuntimeError(f"QP failed: {problem.status}")
+
+        lambda_sub = x.value
+
+        return lambda_sub
+
     
     
     

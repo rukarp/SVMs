@@ -64,10 +64,14 @@ class MySVM(BaseDSMO_for_Gizi):
 
         return SA, nrmse, nmae, np.max(Y_pred_no_int), np.min(Y_pred_no_int)    
     
-    def calculate_w_cos_and_b_error(self, w_ori, w, b_ori, b):
+    def calculate_w_cos(self, w_ori, w, b_ori, b):
+        
+        # 拡張ベクトル (w, b)^T
+        w_ori_ext = np.append(w_ori, b_ori)
+        w_ext = np.append(w, b)
 
         # コサイン類似度
-        cos_theta = np.dot(w_ori, w) / (np.linalg.norm(w_ori) * np.linalg.norm(w))
+        cos_theta = np.dot(w_ori_ext, w_ext) / (np.linalg.norm(w_ori_ext) * np.linalg.norm(w_ext))
 
         # 丸め誤差対策
         cos_theta = np.clip(cos_theta, -1.0, 1.0)
@@ -78,7 +82,7 @@ class MySVM(BaseDSMO_for_Gizi):
         # 角度（度）
         theta_deg = np.degrees(theta)
         
-        # bの誤差を計算
+        # bの誤差
         b_error = np.abs(b_ori - b)
 
         return cos_theta, theta, theta_deg, b_error
@@ -98,7 +102,7 @@ def main():
     # MPIのrankとhostを表示する
     for i in range(size):
         if rank == i:
-            print(f"rank={rank}, host={host}")
+            print(f"rank={rank}, host={host}", flush=True)
         comm.Barrier()
     
     # ---------- iris ----------
@@ -112,8 +116,8 @@ def main():
     # --------------------------
 
     # ---------- adult ---------
-    X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
-    X_test, Y_test = ad.X_test, ad.Y_test
+    #X_train, Y_train = ad.X6_5_train, ad.Y6_5_train
+    #X_test, Y_test = ad.X_test, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
@@ -145,7 +149,7 @@ def main():
     # --------------------------------------------------
     
     # --------------------------------------------------
-    C_list = [0.1, 1, 10, 100, 1000]
+    C_list = [10**(-1), 10**(-0.5), 10**0, 10**0.5, 10**1]
     r_list = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
     # --------------------------------------------------
 
@@ -157,7 +161,9 @@ def main():
     elif kernel == 'rbf':
         mysvm = MySVM(kernel = 'rbf', gamma = gamma, C = C)
     elif kernel == 'sigmoid':
-        mysvm = MySVM(kernel = 'sigmoid', gamma = gamma, coef0 = coef0, C = C)
+        mysvm = MySVM(kernel = 'sigmoid', gamma = gamma, coef0 = coef0, C = C)   
+    mysvm.max_iterations = 1000000
+    #mysvm.tol = 1e-2
     # -----------------------------------------
 
 
@@ -174,12 +180,15 @@ def main():
     # excel出力用
     if rank == 0:
         sheet_names = [
+            "d_move_avg",
             "Accuracy",
             "SA",
             "NRMSE",
             "cos",
             "angle",
             "b_error",
+            "make_fake_data time",
+            "fitting_time",
         ]
         wb = Workbook()
 
@@ -201,66 +210,66 @@ def main():
         
     # C, r の総当たりで実験
     for C in C_list:
+        mysvm.C = C
+        if rank == 0:
+            print(f"C: {C}", flush=True)
+        X_train, Y_train = X_train_ori, Y_train_ori
+    # ----------------------------------------------------
+        
+
+        # オリジナルデータのラベルの最小値と最大値を取得
+        mysvm.min_val = np.min(Y_train)
+        mysvm.max_val = np.max(Y_train)
+
+        X_train_all = comm.gather(X_train, root=0)
+        Y_train_all = comm.gather(Y_train, root=0)
+        
+        # 学習(集約，オリジナルデータ)
+        if rank == 0:
+            X_train_all = np.vstack(X_train_all)
+            Y_train_all = np.concatenate(Y_train_all)
+
+            print("---------- Centralized Learning ----------", flush=True)
+            
+            X_low_len = np.count_nonzero(Y_train_all == mysvm.min_val)
+            X_up_len = np.count_nonzero(Y_train_all == mysvm.max_val)
+            print(f"low: {X_low_len} samples, up: {X_up_len}samples\n", flush=True)
+            
+            t_start = time.time()      
+            
+            mysvm.fit_L(X_train_all, Y_train_all)
+            
+            t_end = time.time()
+            print(f"\nfitting time : {t_end - t_start}\n", flush=True)
+            
+            Y_pred_no_int = np.array([mysvm.f(x) for x in X_test])
+            Y_pred = np.where(Y_pred_no_int >= 0, 1, -1)
+
+            accuracy = np.mean(Y_pred == Y_test)
+            print(f'Accuracy: {accuracy * 100:.2f}%', flush=True)
+            f1 = f1_score(Y_pred, Y_test)
+            print(f'F1: {f1 * 100:.2f}%', flush=True)
+                    
+            print(f'[MIN, MAX]: [{np.min(Y_pred_no_int):.12f}, {np.max(Y_pred_no_int):.12f}]\n', flush=True)
+
+        else:
+            Y_pred_no_int = None
+            mysvm.w = None
+            mysvm.b = None
+        comm.Barrier()
+
+        Y_pred_ori_no_int = comm.bcast(Y_pred_no_int, root=0)
+        w_ori = comm.bcast(mysvm.w, root=0)
+        b_ori = comm.bcast(mysvm.b, root=0)
+
+        # rのループ
         for r in r_list:
             mysvm.C = C
             radius = (r, r)
             
             if rank == 0:
                 print(f"C: {C}, r: {r}", flush=True)
-            
             X_train, Y_train = X_train_ori, Y_train_ori
-    # ----------------------------------------------------
-        
-
-            # オリジナルデータのラベルの最小値と最大値を取得
-            mysvm.min_val = np.min(Y_train)
-            mysvm.max_val = np.max(Y_train)
-
-            X_train_all = comm.gather(X_train, root=0)
-            Y_train_all = comm.gather(Y_train, root=0)
-            
-            # 学習(集約，オリジナルデータ)
-            if rank == 0:
-                X_train_all = np.vstack(X_train_all)
-                Y_train_all = np.concatenate(Y_train_all)
-
-                print("---------- Centralized Learning ----------", flush=True) 
-                
-                X_low_len = np.count_nonzero(Y_train_all == mysvm.min_val)
-                X_up_len = np.count_nonzero(Y_train_all == mysvm.max_val)
-                print(f"low: {X_low_len} samples, up: {X_up_len}samples\n", flush=True)
-                
-                t_start = time.time()      
-                
-                mysvm.fit_L(X_train_all, Y_train_all)
-                
-                t_end = time.time()
-                print(f"\nfitting time : {t_end - t_start}\n", flush=True)
-                
-                Y_pred_no_int = np.array([mysvm.f(x) for x in X_test])
-                Y_pred = np.where(Y_pred_no_int >= 0, 1, -1)
-
-                accuracy = np.mean(Y_pred == Y_test)
-                print(f'Accuracy: {accuracy * 100:.2f}%', flush=True)
-                f1 = f1_score(Y_pred, Y_test)
-                print(f'F1: {f1 * 100:.2f}%', flush=True)
-                        
-                print(f'[MIN, MAX]: [{np.min(Y_pred_no_int):.12f}, {np.max(Y_pred_no_int):.12f}]\n', flush=True)
-
-
-
-            else:
-                Y_pred_no_int = None
-                mysvm.w = None
-                mysvm.b = None
-            comm.Barrier()
-
-            Y_pred_ori_no_int = comm.bcast(Y_pred_no_int, root=0)
-            w_ori = comm.bcast(mysvm.w, root=0)
-            b_ori = comm.bcast(mysvm.b, root=0)
-
-
-
 
 
 
@@ -297,18 +306,25 @@ def main():
                 start = time.time()
                 
             
-            # --------------------------------------------------------------------    
+            d_move = r
+                
             comm.Barrier()
             #X_train, Y_train = mysvm.make_fake_data(X_train, mysvm.ind_sv, lr = 0.01, max_iter=1000)
             #X_train, Y_train = mysvm.make_fake_data_random(X_train, Y_train, radius = radius, max_retry = 10000)
             #X_train, Y_train = mysvm.make_fake_data_random_with_margin(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
-            X_train, Y_train = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+            #X_train, Y_train, d_move = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+            X_train, Y_train, d_move = mysvm.make_fake_data_KKT_QP(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
             comm.Barrier()
-            # -------------------------------------------------------------------- 
-
+            
+            d_move_sum = comm.reduce(d_move, op=MPI.SUM, root=0)
+            
             if rank == 0:
                 end = time.time()
-                print(f"make_fake_data time: {end - start}", flush=True)
+                make_fake_data_time = end - start
+                print(f"make_fake_data time: {make_fake_data_time}", flush=True)
+                
+                d_move_avg = d_move_sum / size
+                print(f"Average d_move: {d_move_avg}", flush=True)
             comm.Barrier()
 
         
@@ -340,7 +356,8 @@ def main():
             comm.Barrier()
             if rank == 0:
                 t_end = time.time()
-                print(f"fitting time : {t_end - t_start}\n", flush=True)
+                fitting_time = t_end - t_start
+                print(f"fitting time : {fitting_time}\n", flush=True)
             comm.Barrier()
 
             # 目的関数の値を Agent0 に集約
@@ -354,7 +371,7 @@ def main():
             f1 = f1_score(Y_pred, Y_test)
             SA, nrmse, nmae, max_f, min_f = mysvm.calculate_SV_RMSE(Y_pred_ori_no_int, Y_pred_no_int)
             if mysvm.kernel == "linear":
-                cos_theta, theta, theta_deg, b_error = mysvm.calculate_w_cos_and_b_error(w_ori, mysvm.w, b_ori, mysvm.b)
+                cos_theta, theta, theta_deg, b_error = mysvm.calculate_w_cos(w_ori, mysvm.w, b_ori, mysvm.b)
 
             # 目的関数値の値を再計算 -------------
             L1, L2 = 0, 0
@@ -409,12 +426,15 @@ def main():
                 row = r_list.index(r) + 2
                 col = C_list.index(C) + 2
 
+                wb["d_move_avg"].cell(row=row, column=col).value = d_move_avg
                 wb["Accuracy"].cell(row=row, column=col).value = accuracy
                 wb["SA"].cell(row=row, column=col).value = SA
                 wb["NRMSE"].cell(row=row, column=col).value = nrmse
                 wb["cos"].cell(row=row, column=col).value = cos_theta
                 wb["angle"].cell(row=row, column=col).value = theta_deg
                 wb["b_error"].cell(row=row, column=col).value = b_error
+                wb["make_fake_data time"].cell(row=row, column=col).value = make_fake_data_time
+                wb["fitting_time"].cell(row=row, column=col).value = fitting_time
 
                 wb.save("result.xlsx")
             comm.Barrier()

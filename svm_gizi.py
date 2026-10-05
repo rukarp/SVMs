@@ -38,24 +38,26 @@ import data_rbf as rd
 def main():
     
     # ---------- iris ----------
-    X_train, X_test, Y_train, Y_test = ir.X_train, ir.X_test, ir.Y_train, ir.Y_test
+    X_train, X_test, Y_train, Y_test = ir.X6_5_train, ir.X_test, ir.Y6_5_train, ir.Y_test
     # --------------------------
           
     # --------- cancer ---------
-    X_train, X_test, Y_train, Y_test = ca.X_train, ca.X_test, ca.Y_train, ca.Y_test
+    #X_train, X_test, Y_train, Y_test = ca.X6_5_train, ca.X_test, ca.Y6_5_train, ca.Y_test
     # --------------------------
         
     # ---------- adult ---------
-    X_train, X_test, Y_train, Y_test = ad.X_train, ad.X_test, ad.Y_train, ad.Y_test
+    #X_train, X_test, Y_train, Y_test = ad.X6_5_train, ad.X_test, ad.Y6_5_train, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
-    X_train, X_test, Y_train, Y_test = ai.X_train, ai.X_test, ai.Y_train, ai.Y_test
+    #X_train, X_test, Y_train, Y_test = ai.X6_5_train, ai.X_test, ai.Y6_5_train, ai.Y_test
     # --------------------------
     
     # ------- rbfサンプル -------
     #X_train, X_test, Y_train, Y_test = rd.X_train, rd.X_test, rd.Y_train, rd.Y_test
     # --------------------------
+    
+    X_train, Y_train = np.concatenate(X_train, axis=0), np.concatenate(Y_train, axis=0)
     
     #print(X_train.shape, X_test.shape, Y_train.shape, Y_test.shape)
         
@@ -79,7 +81,7 @@ def main():
     #mysvm = MySVM_g(kernel = 'sigmoid', gamma = 1.0, coef0 = 1.0, C = 1.0)
     
     plt = True
-    plt = False
+    #plt = False
     # -----------------------------------------
     
     # ----- ノイズの半径の範囲を指定 (最小値, 最大値) -----
@@ -95,7 +97,8 @@ def main():
             #X_train, Y_train = mysvm.make_fake_data_shift(X_train, Y_train, radius = radius, max_retry = 1000, lr = 1e-3, bounds_eps=1e-6, max_iter=10000)
             #X_train, Y_train = mysvm.make_fake_data_random(X_train, Y_train, radius = radius, max_retry = 1000)
             #X_train, Y_train = mysvm.make_fake_data_random_with_margin(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 1000)
-            X_train, Y_train = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+            #X_train, Y_train, d_move = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+            X_train, Y_train, d_move = mysvm.make_fake_data_KKT_QP(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
             end = time.time()
             print(f"make_fake_data time: {end - start:.12f} sec\n")
             
@@ -209,8 +212,11 @@ def main():
         
         # wのコサイン類似度を計算
         if mysvm.kernel == "linear":
+            w_ori_ext = np.append(w_list[0], b_list[0])
+            w_ext = np.append(w_list[i], b_list[i])
+            
             # コサイン類似度
-            cos_theta = np.dot(w_list[0], w_list[i]) / (np.linalg.norm(w_list[0]) * np.linalg.norm(w_list[i]))
+            cos_theta = np.dot(w_ori_ext, w_ext) / (np.linalg.norm(w_ori_ext) * np.linalg.norm(w_ext))
             # 丸め誤差対策
             cos_theta = np.clip(cos_theta, -1.0, 1.0)
             # 角度（ラジアン）
@@ -218,11 +224,11 @@ def main():
             # 角度（度）
             theta_deg = np.degrees(theta)
             # bの誤差
-            b_error = np.abs(b_list[0] - b_list[i])
+            #b_error = np.abs(b_list[0] - b_list[i])
 
             print(f"cos({i}): {cos_theta:.12f}")
             print(f"angle({i}): {theta_deg:.12f} deg ({theta:.12f} rad)")
-            print(f"b_error({i}): {b_error:.12f}")
+            #print(f"b_error({i}): {b_error:.12f}")
 
         
 
