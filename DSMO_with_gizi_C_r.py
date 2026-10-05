@@ -310,10 +310,10 @@ def main():
                 
             comm.Barrier()
             #X_train, Y_train = mysvm.make_fake_data(X_train, mysvm.ind_sv, lr = 0.01, max_iter=1000)
-            #X_train, Y_train = mysvm.make_fake_data_random(X_train, Y_train, radius = radius, max_retry = 10000)
+            X_train, Y_train = mysvm.make_fake_data_random(X_train, Y_train, radius = radius, max_retry = 10000)
             #X_train, Y_train = mysvm.make_fake_data_random_with_margin(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
             #X_train, Y_train, d_move = mysvm.make_fake_data_KKT(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
-            X_train, Y_train, d_move = mysvm.make_fake_data_KKT_QP(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
+            #X_train, Y_train, d_move = mysvm.make_fake_data_KKT_QP(X_train, Y_train, mysvm.alphas, radius = radius, max_retry = 10000)
             comm.Barrier()
             
             d_move_sum = comm.reduce(d_move, op=MPI.SUM, root=0)
