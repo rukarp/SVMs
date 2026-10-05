@@ -46,7 +46,7 @@ def main():
     # --------------------------
         
     # ---------- adult ---------
-    #X_train, X_test, Y_train, Y_test = ad.X6_5_train, ad.X_test, ad.Y6_5_train, ad.Y_test
+    X_train, X_test, Y_train, Y_test = ad.X6_5_train, ad.X_test, ad.Y6_5_train, ad.Y_test
     # --------------------------
     
     # -------- airline ---------
