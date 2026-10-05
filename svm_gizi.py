@@ -42,7 +42,7 @@ def main():
     # --------------------------
           
     # --------- cancer ---------
-    #X_train, X_test, Y_train, Y_test = ca.X6_5_train, ca.X_test, ca.Y6_5_train, ca.Y_test
+    X_train, X_test, Y_train, Y_test = ca.X6_5_train, ca.X_test, ca.Y6_5_train, ca.Y_test
     # --------------------------
         
     # ---------- adult ---------
@@ -81,7 +81,7 @@ def main():
     #mysvm = MySVM_g(kernel = 'sigmoid', gamma = 1.0, coef0 = 1.0, C = 1.0)
     
     plt = True
-    #plt = False
+    plt = False
     # -----------------------------------------
     
     # ----- ノイズの半径の範囲を指定 (最小値, 最大値) -----
