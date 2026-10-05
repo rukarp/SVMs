@@ -44,11 +44,11 @@ def main():
     # --------- cancer ---------
     X_train, X_test, Y_train, Y_test = ca.X6_5_train, ca.X_test, ca.Y6_5_train, ca.Y_test
     # --------------------------
-        1
+    
     # ---------- adult ---------
     X_train, X_test, Y_train, Y_test = ad.X6_5_train, ad.X_test, ad.Y6_5_train, ad.Y_test
     # --------------------------
-    
+    1
     # -------- airline ---------
     #X_train, X_test, Y_train, Y_test = ai.X6_5_train, ai.X_test, ai.Y6_5_train, ai.Y_test
     # --------------------------
